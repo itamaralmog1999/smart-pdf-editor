@@ -35,8 +35,8 @@ label.c input{width:auto}
  body{background:#fff}#app{display:none}#print{display:block;padding:0;font-size:12pt}
  #print h1{font-size:22pt;margin:0 0 12pt}#print h2{font-size:15pt;margin:14pt 0 4pt}
  #print p{margin:4pt 0;white-space:pre-wrap}#print .q{font-weight:700}#print .ul{text-decoration:underline}
- #print .pf{display:flex;flex-wrap:wrap;gap:6pt 18pt;margin:8pt 0}
- #print .pfld{flex:1 1 40%;display:flex;gap:6pt;align-items:flex-end}
+ #print .pf{display:grid;gap:6pt 18pt;margin:8pt 0}
+ #print .pfld{display:flex;gap:6pt;align-items:flex-end;min-width:0}
  #print .pfld b{white-space:nowrap}
  #print .pfld span{flex:1;border-bottom:1pt solid #000;min-height:15pt;padding:0 4pt}
  #print table{margin:8pt 0;page-break-inside:avoid}#print th,#print td{padding:4pt 6pt;min-width:0}
@@ -44,8 +44,10 @@ label.c input{width:auto}
 }
 
 .ul .ut{text-decoration:underline}
-.frow{display:flex;flex-wrap:wrap;gap:14px}
-.fld{flex:1 1 220px}
+.frow{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:14px}
+.frw{border-bottom:1px dashed var(--line);padding-bottom:8px;margin-bottom:10px}
+@media (max-width:560px){.frow{grid-template-columns:1fr}}
+.fld{min-width:0}
 .fl{font-weight:700}
 .line{border:0;border-bottom:1.5px solid var(--ink);border-radius:0}
 .fld select{font-size:12px;padding:2px 6px}
