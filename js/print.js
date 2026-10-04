@@ -28,11 +28,13 @@ function exportPDF(){
    out.append(h('table',{},h('thead',{},hr),tb));
   }
  });
- if(D.bsd||H.childNodes.length){
+ if(D.top||H.childNodes.length){
   // wrap everything in a table: its <thead> repeats at the top of every printed page
-  if(D.bsd)H.prepend(h('div',{className:'bsd'},'בס"ד'));
+  if(D.top)H.prepend(h('div',{className:'bsd'},D.top));
   const td=h('td');td.append(...P.childNodes);
   P.replaceChildren(h('table',{className:'pg'},h('thead',{},h('tr',{},h('td',{},H))),h('tbody',{},h('tr',{},td))));
  }
+ const oldTitle=document.title;document.title=D.title||'document'; // browser prints this in its header, and uses it as the PDF file name
+ window.addEventListener('afterprint',()=>{document.title=oldTitle},{once:true});
  window.print();
 }

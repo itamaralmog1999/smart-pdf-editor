@@ -39,7 +39,7 @@ label.c input{width:auto}
  #print table.pg>thead>tr>td,#print table.pg>tbody>tr>td{border:0;padding:0;vertical-align:top}
  #print .phd{margin-bottom:6pt}
  #print .phd.has{border-bottom:1pt solid #888;padding-bottom:4pt;margin-bottom:10pt}
- #print .bsd{text-align:right;direction:rtl;font-size:12pt}
+ #print .bsd{text-align:right;direction:rtl;font-size:9pt}
  #print .hl{font-size:11pt;padding-bottom:3pt;border-bottom:1pt solid #888}#print .ul{text-decoration:underline}
  #print .pf{display:grid;gap:6pt 18pt;margin:8pt 0}
  #print .pfld{display:flex;gap:6pt;align-items:flex-end;min-width:0}
@@ -67,3 +67,5 @@ label.c input{width:auto}
 .opts .hdr{flex:1 1 240px;border:1px solid var(--line);background:#fff}
 
 button.on{background:var(--acc2);border-color:var(--acc);color:var(--acc);font-weight:700}
+
+.bar .top{width:190px;max-width:100%;font-size:14px;padding:6px 8px;border:1px solid var(--line);background:#fff}

@@ -61,7 +61,7 @@ function render(){
  document.documentElement.dir=D.lang==='he'?'rtl':'ltr';
  const ti=$('title');ti.value=D.title;ti.placeholder=t('title');ti.dir='auto';
  const bar=$('bar');bar.replaceChildren(
-  btn(t('pdf'),exportPDF,'p'),btn((D.bsd?'✓ ':'')+'בס"ד',()=>{D.bsd=!D.bsd;save();render()},D.bsd?'on':''),btn(t('exp'),exportJSON),btn(t('imp'),()=>$('file').click()),
+  btn(t('pdf'),exportPDF,'p'),topInput(),btn(t('exp'),exportJSON),btn(t('imp'),()=>$('file').click()),
   h('span',{className:'sp'}),h('small',{style:'color:var(--mute)'},t('saved')),btn(t('ui'),()=>{D.lang=D.lang==='he'?'en':'he';save();render()}));
  $('add').replaceChildren(btn('+ '+t('h'),()=>add('heading')),btn('+ '+t('t'),()=>add('text')),btn('+ '+t('q'),()=>add('question')),btn('+ '+t('tb'),()=>add('table')),btn('+ '+t('fr'),()=>add('fields')));
  $('cells').replaceChildren(...D.cells.flatMap((c,i)=>[inserter(i),cellUI(c,i)]),inserter(D.cells.length));
@@ -100,4 +100,11 @@ function inserter(i){
   btn('✕',close,'x'));
  close();
  return box;
+}
+
+// Small text typed by hand (e.g. בס"ד), printed top-right on every page
+function topInput(){
+ const i=h('input',{value:D.top||'',placeholder:t('top'),className:'top',dir:'auto',title:t('toptip')});
+ i.addEventListener('input',()=>{D.top=i.value;save()});
+ return i;
 }
