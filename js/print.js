@@ -26,5 +26,13 @@ function exportPDF(){
    P.append(h('table',{},h('thead',{},hr),tb));
   }
  });
+ if(D.bsd||D.header){
+  // wrap everything in a table: its <thead> repeats at the top of every printed page
+  const hd=h('div',{className:'phd'});
+  if(D.bsd)hd.append(h('div',{className:'bsd'},'בס"ד'));
+  if(D.header)hd.append(h('div',{className:'hl',dir:'auto'},D.header));
+  const td=h('td');td.append(...P.childNodes);
+  P.replaceChildren(h('table',{className:'pg'},h('thead',{},h('tr',{},h('td',{},hd))),h('tbody',{},h('tr',{},td))));
+ }
  window.print();
 }

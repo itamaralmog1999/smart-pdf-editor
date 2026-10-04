@@ -62,6 +62,7 @@ function render(){
   btn(t('pdf'),exportPDF,'p'),btn(t('exp'),exportJSON),btn(t('imp'),()=>$('file').click()),
   h('span',{className:'sp'}),h('small',{style:'color:var(--mute)'},t('saved')),btn(t('ui'),()=>{D.lang=D.lang==='he'?'en':'he';save();render()}));
  $('add').replaceChildren(btn('+ '+t('h'),()=>add('heading')),btn('+ '+t('t'),()=>add('text')),btn('+ '+t('q'),()=>add('question')),btn('+ '+t('tb'),()=>add('table')),btn('+ '+t('fr'),()=>add('fields')));
+ docOpts();
  $('cells').replaceChildren(...D.cells.flatMap((c,i)=>[inserter(i),cellUI(c,i)]),inserter(D.cells.length));
 }
 
@@ -98,4 +99,13 @@ function inserter(i){
   btn('✕',close,'x'));
  close();
  return box;
+}
+
+// Document-level options: Besiyata Dishmaya + a header line repeated on every printed page
+function docOpts(){
+ const cb=h('input',{type:'checkbox',checked:!!D.bsd});
+ cb.addEventListener('change',()=>{D.bsd=cb.checked;save()});
+ const hd=h('input',{value:D.header||'',placeholder:t('hdr'),className:'hdr',dir:'auto'});
+ hd.addEventListener('input',()=>{D.header=hd.value;save()});
+ $('opts').replaceChildren(h('label',{className:'c'},cb,t('bsd')),hd);
 }
