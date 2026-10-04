@@ -3,7 +3,7 @@ const fv=f=>f.type==='date'&&f.value?f.value.split('-').reverse().join('/'):(f.v
 function exportPDF(){
  const P=$('print');P.replaceChildren();
  P.dir=D.lang==='he'?'rtl':'ltr';
- if(D.title)P.append(h('h1',{dir:'auto'},D.title));
+ const T=D.title?h('h1',{dir:'auto'},D.title):null; // document title: first page only
  const H=h('div',{className:'phd'}); // pinned cells + בס"ד go here
  D.cells.forEach(c=>{
   const d=c.dir,u=c.u?' ul':'',out=c.pin?H:P;
@@ -28,12 +28,13 @@ function exportPDF(){
    out.append(h('table',{},h('thead',{},hr),tb));
   }
  });
- if(D.top||H.childNodes.length){
-  // wrap everything in a table: its <thead> repeats at the top of every printed page
-  if(D.top)H.prepend(h('div',{className:'bsd'},D.top));
-  const td=h('td');td.append(...P.childNodes);
-  P.replaceChildren(h('table',{className:'pg'},h('thead',{},h('tr',{},h('td',{},H))),h('tbody',{},h('tr',{},td))));
- }
+ // Layout: [top text, repeats] > [title, first page only] > [pinned cells, repeat] > content
+ const wrap=(hd,nodes)=>{const td=h('td');td.append(...nodes);return h('table',{className:'pg'},h('thead',{},h('tr',{},h('td',{},hd))),h('tbody',{},h('tr',{},td)))};
+ const body=[...P.childNodes];
+ const core=H.childNodes.length?[wrap(H,body)]:body;
+ const inner=T?[T,...core]:core;
+ if(D.top)P.replaceChildren(wrap(h('div',{className:'phd'},h('div',{className:'bsd'},D.top)),inner));
+ else P.replaceChildren(...inner);
  const oldTitle=document.title;document.title=D.title||'document'; // browser prints this in its header, and uses it as the PDF file name
  window.addEventListener('afterprint',()=>{document.title=oldTitle},{once:true});
  window.print();
