@@ -62,7 +62,7 @@ function render(){
   btn(t('pdf'),exportPDF,'p'),btn(t('exp'),exportJSON),btn(t('imp'),()=>$('file').click()),
   h('span',{className:'sp'}),h('small',{style:'color:var(--mute)'},t('saved')),btn(t('ui'),()=>{D.lang=D.lang==='he'?'en':'he';save();render()}));
  $('add').replaceChildren(btn('+ '+t('h'),()=>add('heading')),btn('+ '+t('t'),()=>add('text')),btn('+ '+t('q'),()=>add('question')),btn('+ '+t('tb'),()=>add('table')),btn('+ '+t('fr'),()=>add('fields')));
- $('cells').replaceChildren(...D.cells.map(cellUI));
+ $('cells').replaceChildren(...D.cells.flatMap((c,i)=>[inserter(i),cellUI(c,i)]),inserter(D.cells.length));
 }
 
 
@@ -86,4 +86,16 @@ function fieldsUI(c){
   g.append(h('div',{className:'fld'},field(f,'label',t('fl'),'fl',false),val,typeSel));
  });
  return h('div',{},h('div',{className:'tb'},t('inRow')+':',n),g);
+}
+
+// "+" button between cells (and before the first / after the last) to insert a new cell there
+function insertAt(type,i){D.cells.splice(i,0,newCell(type));save();render()}
+function inserter(i){
+ const box=h('div',{className:'ins'});
+ const close=()=>box.replaceChildren(btn('+',open,'plus'));
+ const open=()=>box.replaceChildren(
+  ...[['heading','h'],['text','t'],['question','q'],['table','tb'],['fields','fr']].map(([ty,k])=>btn(t(k),()=>insertAt(ty,i))),
+  btn('✕',close,'x'));
+ close();
+ return box;
 }

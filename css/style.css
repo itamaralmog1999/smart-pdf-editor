@@ -51,3 +51,8 @@ label.c input{width:auto}
 .fl{font-weight:700}
 .line{border:0;border-bottom:1.5px solid var(--ink);border-radius:0}
 .fld select{font-size:12px;padding:2px 6px}
+
+.ins{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:2px 0}
+.ins button{font-size:13px;padding:2px 10px}
+.ins .plus{border-style:dashed;color:var(--mute);padding:0 18px;opacity:.65}
+.ins .plus:hover{opacity:1}
