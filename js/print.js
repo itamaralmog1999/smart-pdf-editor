@@ -4,10 +4,13 @@ function exportPDF(){
  P.dir=D.lang==='he'?'rtl':'ltr';
  if(D.title)P.append(h('h1',{dir:'auto'},D.title));
  D.cells.forEach(c=>{
-  const d=c.dir;
-  if(c.type==='heading')P.append(h('h2',{dir:d},c.text));
-  else if(c.type==='text')P.append(h('p',{dir:d},c.text));
-  else if(c.type==='question')P.append(h('p',{dir:d,className:'q'},c.text),h('p',{dir:d},c.answer||''));
+  const d=c.dir,u=c.u?' ul':'';
+  if(c.type==='heading')P.append(h('h2',{dir:d,className:u.trim()},c.text));
+  else if(c.type==='text')P.append(h('p',{dir:d,className:u.trim()},c.text));
+  else if(c.type==='question')P.append(h('p',{dir:d,className:'q'+u},c.text),h('p',{dir:d},c.answer||''));
+  else if(c.type==='fields'){
+   P.append(h('div',{className:'pf'},c.fields.map(f=>h('div',{className:'pfld',dir:d},h('b',{},f.label+':'),h('span',{dir:'auto'},f.type==='date'&&f.value?f.value.split('-').reverse().join('/'):(f.value||''))))));
+  }
   else{
    if(c.text)P.append(h('p',{dir:d,className:'q'},c.text));
    const hr=h('tr');

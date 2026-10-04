@@ -2,6 +2,7 @@
 function newCell(type){
  const c={id:uid(),type,dir:'auto',text:''};
  if(type==='question')c.answer='';
+ if(type==='fields')c.fields=[{label:t('fl')+' 1',type:'date',value:''},{label:t('fl')+' 2',type:'date',value:''}];
  if(type==='table'){c.headers=[t('c1')+' 1',t('c1')+' 2'];c.corner='';c.useRowHeaders=false;c.rowHeaders=[''];c.rows=[['','']]}
  return c;
 }
@@ -38,14 +39,18 @@ function cellUI(c,i){
  c._dir=c.dir==='auto'?'auto':c.dir;
  const sel=h('select',{on:{change:e=>{c.dir=e.target.value;save();render()}}},
   ['auto','rtl','ltr'].map(v=>h('option',{value:v,selected:c.dir===v},t(v))));
- const tools=h('div',{className:'tools'},t(c.type==='heading'?'h':c.type==='text'?'t':c.type==='question'?'q':'tb'),
-  h('span',{className:'sp'}),sel,btn('▲',()=>move(i,-1)),btn('▼',()=>move(i,1)),btn('✕',()=>{D.cells.splice(i,1);save();render()},'x'));
+ const ub=(c.type==='table'||c.type==='fields')?'':btn('U',()=>{c.u=!c.u;save();render()},c.u?'p':'');
+ if(ub){ub.style.textDecoration='underline';ub.title=t('u')}
+ const tools=h('div',{className:'tools'},t({heading:'h',text:'t',question:'q',table:'tb',fields:'fr'}[c.type]),
+  h('span',{className:'sp'}),ub,sel,btn('▲',()=>move(i,-1)),btn('▼',()=>move(i,1)),btn('✕',()=>{D.cells.splice(i,1);save();render()},'x'));
  tools.querySelector('button:last-child').title=t('del');
  const body=h('div',{className:'body'});
- if(c.type==='heading')body.append(field(c,'text',t('title'),'h',false));
- else if(c.type==='text')body.append(field(c,'text',t('ph'),'',true));
- else if(c.type==='question')body.append(field(c,'text',t('qph'),'',true),field(c,'answer',t('aph'),'ans',true));
+ if(c.type==='heading')body.append(field(c,'text',t('title'),'h ut',false));
+ else if(c.type==='text')body.append(field(c,'text',t('ph'),'ut',true));
+ else if(c.type==='question')body.append(field(c,'text',t('qph'),'ut',true),field(c,'answer',t('aph'),'ans',true));
+ else if(c.type==='fields')body.append(fieldsUI(c));
  else body.append(field(c,'text',t('ph'),'',false),tableUI(c));
+ if(c.u)body.classList.add('ul');
  return h('div',{className:'cell'},tools,body);
 }
 
@@ -56,7 +61,22 @@ function render(){
  const bar=$('bar');bar.replaceChildren(
   btn(t('pdf'),exportPDF,'p'),btn(t('exp'),exportJSON),btn(t('imp'),()=>$('file').click()),
   h('span',{className:'sp'}),h('small',{style:'color:var(--mute)'},t('saved')),btn(t('ui'),()=>{D.lang=D.lang==='he'?'en':'he';save();render()}));
- $('add').replaceChildren(btn('+ '+t('h'),()=>add('heading')),btn('+ '+t('t'),()=>add('text')),btn('+ '+t('q'),()=>add('question')),btn('+ '+t('tb'),()=>add('table')));
+ $('add').replaceChildren(btn('+ '+t('h'),()=>add('heading')),btn('+ '+t('t'),()=>add('text')),btn('+ '+t('q'),()=>add('question')),btn('+ '+t('tb'),()=>add('table')),btn('+ '+t('fr'),()=>add('fields')));
  $('cells').replaceChildren(...D.cells.map(cellUI));
 }
 
+
+// A row of several fields side by side (e.g. start date / end date)
+function fieldsUI(c){
+ const row=h('div',{className:'frow'});
+ c.fields.forEach((f,i)=>{
+  const typeSel=h('select',{on:{change:e=>{f.type=e.target.value;f.value='';save();render()}}},
+   ['text','date','number'].map(v=>h('option',{value:v,selected:f.type===v},t('f'+v))));
+  const val=h('input',{type:f.type,value:f.value||'',className:'line',dir:'auto'});
+  val.addEventListener('input',()=>{f.value=val.value;save()});
+  row.append(h('div',{className:'fld'},
+   field(f,'label',t('fl'),'fl',false),val,
+   h('div',{className:'tb'},typeSel,c.fields.length>1?btn('✕',()=>{c.fields.splice(i,1);save();render()},'x'):'')));
+ });
+ return h('div',{},row,h('div',{className:'tb'},btn(t('addF'),()=>{c.fields.push({label:t('fl')+' '+(c.fields.length+1),type:'text',value:''});save();render()})));
+}
