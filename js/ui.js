@@ -2,7 +2,7 @@
 function newCell(type){
  const c={id:uid(),type,dir:'auto',text:''};
  if(type==='question')c.answer='';
- if(type==='fields')c.frows=[[{label:t('fl')+' 1',type:'date',value:''},{label:t('fl')+' 2',type:'date',value:''}]];
+ if(type==='fields')c.fields=[{label:t('fl')+' 1',type:'date',value:''},{label:t('fl')+' 2',type:'date',value:''}];
  if(type==='table'){c.headers=[t('c1')+' 1',t('c1')+' 2'];c.corner='';c.useRowHeaders=false;c.rowHeaders=[''];c.rows=[['','']]}
  return c;
 }
@@ -66,31 +66,24 @@ function render(){
 }
 
 
-// Rows of fields: each row can have its own number of fields
-let newRowN=2;
+// One row of 1-4 fields, divided evenly (e.g. start date / end date)
 const newF=i=>({label:t('fl')+' '+i,type:'text',value:''});
 function fieldsUI(c){
- if(!c.frows)c.frows=c.fields?[c.fields]:[[newF(1)]]; // migrate older documents
- const w=h('div');
- c.frows.forEach((row,ri)=>{
-  const g=h('div',{className:'frow'});
-  g.style.setProperty('--n',row.length);
-  row.forEach((f,i)=>{
-   const typeSel=h('select',{on:{change:e=>{f.type=e.target.value;f.value='';save();render()}}},
-    ['text','date','number'].map(v=>h('option',{value:v,selected:f.type===v},t('f'+v))));
-   const val=h('input',{type:f.type,value:f.value||'',className:'line',dir:'auto'});
-   val.addEventListener('input',()=>{f.value=val.value;save()});
-   g.append(h('div',{className:'fld'},
-    field(f,'label',t('fl'),'fl',false),val,
-    h('div',{className:'tb'},typeSel,row.length>1?btn('✕',()=>{row.splice(i,1);save();render()},'x'):'')));
-  });
-  w.append(h('div',{className:'frw'},g,h('div',{className:'tb'},
-   btn(t('addF'),()=>{row.push(newF(row.length+1));save();render()}),
-   c.frows.length>1?btn(t('delR'),()=>{c.frows.splice(ri,1);save();render()},'x'):'')));
+ if(!c.fields)c.fields=c.frows?c.frows[0]:[newF(1),newF(2)]; // migrate older documents
+ c.fields=c.fields.slice(0,4);
+ const n=h('select',{on:{change:e=>{
+  const k=+e.target.value;
+  while(c.fields.length<k)c.fields.push(newF(c.fields.length+1));
+  c.fields.length=k;save();render();
+ }}},[1,2,3,4].map(v=>h('option',{value:v,selected:v===c.fields.length},v)));
+ const g=h('div',{className:'frow'});
+ g.style.setProperty('--n',c.fields.length);
+ c.fields.forEach(f=>{
+  const typeSel=h('select',{on:{change:e=>{f.type=e.target.value;f.value='';save();render()}}},
+   ['text','date','number'].map(v=>h('option',{value:v,selected:f.type===v},t('f'+v))));
+  const val=h('input',{type:f.type,value:f.value||'',className:'line',dir:'auto'});
+  val.addEventListener('input',()=>{f.value=val.value;save()});
+  g.append(h('div',{className:'fld'},field(f,'label',t('fl'),'fl',false),val,typeSel));
  });
- const n=h('select',{on:{change:e=>{newRowN=+e.target.value}}},[1,2,3,4,5,6].map(v=>h('option',{value:v,selected:v===newRowN},v)));
- w.append(h('div',{className:'tb'},
-  btn(t('addR'),()=>{c.frows.push(Array.from({length:newRowN},(_,i)=>newF(i+1)));save();render()}),
-  t('inRow')+':',n));
- return w;
+ return h('div',{},h('div',{className:'tb'},t('inRow')+':',n),g);
 }

@@ -44,9 +44,9 @@ label.c input{width:auto}
 }
 
 .ul .ut{text-decoration:underline}
-.frow{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:14px}
-.frw{border-bottom:1px dashed var(--line);padding-bottom:8px;margin-bottom:10px}
-@media (max-width:560px){.frow{grid-template-columns:1fr}}
+.frow{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:8px;margin-top:8px}
+.fld input{padding:4px}
+.fld select{width:100%}
 .fld{min-width:0}
 .fl{font-weight:700}
 .line{border:0;border-bottom:1.5px solid var(--ink);border-radius:0}

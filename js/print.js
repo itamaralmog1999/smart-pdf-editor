@@ -10,11 +10,9 @@ function exportPDF(){
   else if(c.type==='text')P.append(h('p',{dir:d,className:u.trim()},c.text));
   else if(c.type==='question')P.append(h('p',{dir:d,className:'q'+u},c.text),h('p',{dir:d},c.answer||''));
   else if(c.type==='fields'){
-   (c.frows||[c.fields]).forEach(row=>{
-    const g=h('div',{className:'pf',dir:d},row.map(f=>h('div',{className:'pfld'},h('b',{},f.label+':'),h('span',{dir:'auto'},fv(f)))));
-    g.style.gridTemplateColumns='repeat('+row.length+',1fr)';
-    P.append(g);
-   });
+   const g=h('div',{className:'pf',dir:d},c.fields.map(f=>h('div',{className:'pfld'},h('b',{},f.label+':'),h('span',{dir:'auto'},fv(f)))));
+   g.style.gridTemplateColumns='repeat('+c.fields.length+',1fr)';
+   P.append(g);
   }
   else{
    if(c.text)P.append(h('p',{dir:d,className:'q'},c.text));
