@@ -41,8 +41,10 @@ function cellUI(c,i){
   ['auto','rtl','ltr'].map(v=>h('option',{value:v,selected:c.dir===v},t(v))));
  const ub=(c.type==='table'||c.type==='fields')?'':btn('U',()=>{c.u=!c.u;save();render()},c.u?'p':'');
  if(ub){ub.style.textDecoration='underline';ub.title=t('u')}
- const tools=h('div',{className:'tools'},t({heading:'h',text:'t',question:'q',table:'tb',fields:'fr'}[c.type]),
-  h('span',{className:'sp'}),ub,sel,btn('▲',()=>move(i,-1)),btn('▼',()=>move(i,1)),btn('✕',()=>{D.cells.splice(i,1);save();render()},'x'));
+ const pb=btn('📌',()=>{c.pin=!c.pin;save();render()},c.pin?'on':'');
+ pb.title=t('pin');
+ const tools=h('div',{className:'tools'},t({heading:'h',text:'t',question:'q',table:'tb',fields:'fr'}[c.type])+(c.pin?' · '+t('pinned'):''),
+  h('span',{className:'sp'}),pb,ub,sel,btn('▲',()=>move(i,-1)),btn('▼',()=>move(i,1)),btn('✕',()=>{D.cells.splice(i,1);save();render()},'x'));
  tools.querySelector('button:last-child').title=t('del');
  const body=h('div',{className:'body'});
  if(c.type==='heading')body.append(field(c,'text',t('title'),'h ut',false));
@@ -59,10 +61,9 @@ function render(){
  document.documentElement.dir=D.lang==='he'?'rtl':'ltr';
  const ti=$('title');ti.value=D.title;ti.placeholder=t('title');ti.dir='auto';
  const bar=$('bar');bar.replaceChildren(
-  btn(t('pdf'),exportPDF,'p'),btn(t('exp'),exportJSON),btn(t('imp'),()=>$('file').click()),
+  btn(t('pdf'),exportPDF,'p'),btn((D.bsd?'✓ ':'')+'בס"ד',()=>{D.bsd=!D.bsd;save();render()},D.bsd?'on':''),btn(t('exp'),exportJSON),btn(t('imp'),()=>$('file').click()),
   h('span',{className:'sp'}),h('small',{style:'color:var(--mute)'},t('saved')),btn(t('ui'),()=>{D.lang=D.lang==='he'?'en':'he';save();render()}));
  $('add').replaceChildren(btn('+ '+t('h'),()=>add('heading')),btn('+ '+t('t'),()=>add('text')),btn('+ '+t('q'),()=>add('question')),btn('+ '+t('tb'),()=>add('table')),btn('+ '+t('fr'),()=>add('fields')));
- docOpts();
  $('cells').replaceChildren(...D.cells.flatMap((c,i)=>[inserter(i),cellUI(c,i)]),inserter(D.cells.length));
 }
 
@@ -99,13 +100,4 @@ function inserter(i){
   btn('✕',close,'x'));
  close();
  return box;
-}
-
-// Document-level options: Besiyata Dishmaya + a header line repeated on every printed page
-function docOpts(){
- const cb=h('input',{type:'checkbox',checked:!!D.bsd});
- cb.addEventListener('change',()=>{D.bsd=cb.checked;save()});
- const hd=h('input',{value:D.header||'',placeholder:t('hdr'),className:'hdr',dir:'auto'});
- hd.addEventListener('input',()=>{D.header=hd.value;save()});
- $('opts').replaceChildren(h('label',{className:'c'},cb,t('bsd')),hd);
 }

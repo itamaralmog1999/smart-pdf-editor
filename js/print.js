@@ -4,18 +4,20 @@ function exportPDF(){
  const P=$('print');P.replaceChildren();
  P.dir=D.lang==='he'?'rtl':'ltr';
  if(D.title)P.append(h('h1',{dir:'auto'},D.title));
+ const H=h('div',{className:'phd'}); // pinned cells + בס"ד go here
  D.cells.forEach(c=>{
-  const d=c.dir,u=c.u?' ul':'';
-  if(c.type==='heading')P.append(h('h2',{dir:d,className:u.trim()},c.text));
-  else if(c.type==='text')P.append(h('p',{dir:d,className:u.trim()},c.text));
-  else if(c.type==='question')P.append(h('p',{dir:d,className:'q'+u},c.text),h('p',{dir:d},c.answer||''));
+  const d=c.dir,u=c.u?' ul':'',out=c.pin?H:P;
+  if(c.pin)H.classList.add('has');
+  if(c.type==='heading')out.append(h('h2',{dir:d,className:u.trim()},c.text));
+  else if(c.type==='text')out.append(h('p',{dir:d,className:u.trim()},c.text));
+  else if(c.type==='question')out.append(h('p',{dir:d,className:'q'+u},c.text),h('p',{dir:d},c.answer||''));
   else if(c.type==='fields'){
    const g=h('div',{className:'pf',dir:d},c.fields.map(f=>h('div',{className:'pfld'},h('b',{},f.label+':'),h('span',{dir:'auto'},fv(f)))));
    g.style.gridTemplateColumns='repeat('+c.fields.length+',1fr)';
-   P.append(g);
+   out.append(g);
   }
   else{
-   if(c.text)P.append(h('p',{dir:d,className:'q'},c.text));
+   if(c.text)out.append(h('p',{dir:d,className:'q'},c.text));
    const hr=h('tr');
    if(c.useRowHeaders)hr.append(h('th',{dir:d},c.corner||''));
    c.headers.forEach(x=>hr.append(h('th',{dir:d},x)));
@@ -23,16 +25,14 @@ function exportPDF(){
    c.rows.forEach((r,ri)=>{const tr=h('tr');
     if(c.useRowHeaders)tr.append(h('th',{dir:d},c.rowHeaders[ri]||''));
     r.forEach(x=>tr.append(h('td',{dir:d},x)));tb.append(tr)});
-   P.append(h('table',{},h('thead',{},hr),tb));
+   out.append(h('table',{},h('thead',{},hr),tb));
   }
  });
- if(D.bsd||D.header){
+ if(D.bsd||H.childNodes.length){
   // wrap everything in a table: its <thead> repeats at the top of every printed page
-  const hd=h('div',{className:'phd'});
-  if(D.bsd)hd.append(h('div',{className:'bsd'},'בס"ד'));
-  if(D.header)hd.append(h('div',{className:'hl',dir:'auto'},D.header));
+  if(D.bsd)H.prepend(h('div',{className:'bsd'},'בס"ד'));
   const td=h('td');td.append(...P.childNodes);
-  P.replaceChildren(h('table',{className:'pg'},h('thead',{},h('tr',{},h('td',{},hd))),h('tbody',{},h('tr',{},td))));
+  P.replaceChildren(h('table',{className:'pg'},h('thead',{},h('tr',{},h('td',{},H))),h('tbody',{},h('tr',{},td))));
  }
  window.print();
 }

@@ -37,7 +37,8 @@ label.c input{width:auto}
  #print p{margin:4pt 0;white-space:pre-wrap}#print .q{font-weight:700}
  #print table.pg{margin:0;width:100%;page-break-inside:auto}
  #print table.pg>thead>tr>td,#print table.pg>tbody>tr>td{border:0;padding:0;vertical-align:top}
- #print .phd{margin-bottom:10pt}
+ #print .phd{margin-bottom:6pt}
+ #print .phd.has{border-bottom:1pt solid #888;padding-bottom:4pt;margin-bottom:10pt}
  #print .bsd{text-align:right;direction:rtl;font-size:12pt}
  #print .hl{font-size:11pt;padding-bottom:3pt;border-bottom:1pt solid #888}#print .ul{text-decoration:underline}
  #print .pf{display:grid;gap:6pt 18pt;margin:8pt 0}
@@ -64,3 +65,5 @@ label.c input{width:auto}
 
 .opts{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:8px 0}
 .opts .hdr{flex:1 1 240px;border:1px solid var(--line);background:#fff}
+
+button.on{background:var(--acc2);border-color:var(--acc);color:var(--acc);font-weight:700}
