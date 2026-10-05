@@ -35,6 +35,11 @@ label.c input{width:auto}
  body{background:#fff}#app{display:none}#print{display:block;padding:0;font-size:12pt}
  #print h1{font-size:22pt;margin:0 0 12pt}#print h2{font-size:15pt;margin:14pt 0 4pt}
  #print p{margin:4pt 0;white-space:pre-wrap}#print .q{font-weight:700}
+ #print .pch{display:flex;flex-wrap:wrap;gap:4pt 12pt;align-items:flex-end;margin:8pt 0}
+ #print .po{padding:1pt 9pt;border:1pt solid transparent}
+ #print .circ{border-color:#000;border-radius:12pt}
+ #print .pdl{flex:1 1 120pt;border-bottom:1pt solid #000;min-height:15pt;padding:0 4pt}
+ #print .bl{border-bottom:1pt solid #000;height:22pt}
  #print table.pg{margin:0;width:100%;page-break-inside:auto}
  #print table.pg>thead>tr>td,#print table.pg>tbody>tr>td{border:0;padding:0;vertical-align:top}
  #print .phd{margin-bottom:6pt}
@@ -69,3 +74,14 @@ label.c input{width:auto}
 button.on{background:var(--acc2);border-color:var(--acc);color:var(--acc);font-weight:700}
 
 .bar .top{width:190px;max-width:100%;font-size:14px;padding:6px 8px;border:1px solid var(--line);background:#fff}
+
+.opt{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:20px;padding:0 4px;background:#fff}
+.opt.sel{border:2px solid var(--acc);background:var(--acc2)}
+.opt input{width:7em;padding:3px}
+.opt button{border:0;background:none;padding:2px 6px;font-size:16px}
+.dt{flex-wrap:nowrap}
+.dt input{flex:1;width:auto}
+.dt input.fl{flex:0 0 30%}
+label.c input.num{width:70px}
+.blpv{margin-top:6px}
+.blp{border-bottom:1px solid var(--line);height:24px}

@@ -16,6 +16,13 @@ function exportPDF(){
    g.style.gridTemplateColumns='repeat('+c.fields.length+',1fr)';
    out.append(g);
   }
+  else if(c.type==='lines'){}
+  else if(c.type==='choice'){
+   out.append(h('div',{className:'pch',dir:d},
+    h('b',{className:u.trim()},c.text?c.text+':':''),
+    c.opts.map((o,i)=>h('span',{className:'po'+(c.sel===i?' circ':'')},o)),
+    c.detail?[h('b',{},(c.dlabel||'')+':'),h('span',{className:'pdl',dir:'auto'},c.dtext||'')]:[]));
+  }
   else{
    if(c.text)out.append(h('p',{dir:d,className:'q'},c.text));
    const hr=h('tr');
@@ -27,6 +34,7 @@ function exportPDF(){
     r.forEach(x=>tr.append(h('td',{dir:d},x)));tb.append(tr)});
    out.append(h('table',{},h('thead',{},hr),tb));
   }
+ if(['question','fields','choice','lines'].includes(c.type))for(let k=0;k<(c.lines||0);k++)out.append(h('div',{className:'bl'}));
  });
  // Layout: [top text, repeats] > [title, first page only] > [pinned cells, repeat] > content
  const wrap=(hd,nodes)=>{const td=h('td');td.append(...nodes);return h('table',{className:'pg'},h('thead',{},h('tr',{},h('td',{},hd))),h('tbody',{},h('tr',{},td)))};
