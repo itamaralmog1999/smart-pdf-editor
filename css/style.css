@@ -84,4 +84,4 @@ button.on{background:var(--acc2);border-color:var(--acc);color:var(--acc);font-w
 .dt input.fl{flex:0 0 30%}
 label.c input.num{width:70px}
 .blpv{margin-top:6px}
-.blp{border-bottom:1px solid var(--line);height:24px}
+.blp{border-bottom:1px solid #8a94a3;height:24px}

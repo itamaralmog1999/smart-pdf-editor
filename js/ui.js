@@ -113,19 +113,17 @@ function topInput(){
  return i;
 }
 
-// Number of blank writing lines printed after a cell
-function linesCtl(c,onChange){
+// Number of blank writing lines printed after a cell, with a live preview of the lines
+function linesCtl(c){
+ const pv=h('div',{className:'blpv'});
+ const draw=()=>pv.replaceChildren(...Array.from({length:Math.min(c.lines||0,15)},()=>h('div',{className:'blp'})));
  const i=h('input',{type:'number',value:c.lines||0,min:0,max:60,className:'num'});
- i.addEventListener('input',()=>{c.lines=Math.max(0,Math.min(60,parseInt(i.value)||0));save();if(onChange)onChange()});
- return h('label',{className:'c'},t('ln')+':',i);
+ i.addEventListener('input',()=>{c.lines=Math.max(0,Math.min(60,parseInt(i.value)||0));save();draw()});
+ draw();
+ return h('div',{},h('label',{className:'c'},t('ln')+':',i),pv);
 }
 // Stand-alone block of blank lines
-function linesUI(c){
- const pv=h('div',{className:'blpv'});
- const draw=()=>pv.replaceChildren(...Array.from({length:Math.min(c.lines||0,12)},()=>h('div',{className:'blp'})));
- draw();
- return h('div',{},linesCtl(c,draw),pv);
-}
+function linesUI(c){return linesCtl(c)}
 // Choice: label + options (tap one to circle it) + optional details line + blank lines
 function choiceUI(c){
  const w=h('div');
