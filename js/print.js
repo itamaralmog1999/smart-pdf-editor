@@ -1,7 +1,7 @@
 // PDF export (via browser print). Edit print look in css/style.css (@media print).
 const pf=f=>f.type==='choice'
- ?h('div',{className:'pfld'},h('b',{},f.label?f.label+':':''),h('span',{className:'pco'},f.opts.map((o,i)=>h('span',{className:'po'+(f.sel===i?' circ':'')},o.text,o.fill?[' ',h('span',{className:'pfl'},o.val||''),' '+(o.unit||'')]:[]))))
- :h('div',{className:'pfld'},h('b',{},f.label?f.label+':':''),h('span',{dir:'auto'},fv(f)),f.unit?h('b',{dir:'auto'},f.unit):'');
+ ?h('div',{className:'pfld'},h('b',{},f.label?f.label+':':''),h('span',{className:'pco'},f.opts.map((o,i)=>h('span',{className:'po'+(f.sel===i?' circ':'')},o.text,o.fill?[' ',h('span',{className:'pfl'},o.val||''),' '+(o.unit||'')]:[]))),f.detail?[h('b',{},(f.dlabel||'')+':'),h('span',{className:'pdl',dir:'auto'},f.dtext||'')]:'')
+ :h('div',{className:'pfld'},h('b',{},f.label?f.label+':':''),h('span',{dir:'auto',className:f.type==='number'?'ctr':''},fv(f)),f.unit?h('b',{dir:'auto'},f.unit):'');
 const fv=f=>f.type==='date'&&f.value?f.value.split('-').reverse().join('/'):(f.value||'');
 function exportPDF(){
  const P=$('print');P.replaceChildren();
@@ -9,7 +9,7 @@ function exportPDF(){
  const T=D.title?h('h1',{dir:'auto'},D.title):null; // document title: first page only
  const H=h('div',{className:'phd'}); // pinned cells + בס"ד go here
  D.cells.forEach(c=>{
-  const d=c.dir,u=c.u?' ul':'',out=c.pin?H:P;
+  const d=c.dir,u=c.u?' ul':'',out=c.pin?H:h('div',{className:'kw'}); // each cell is kept together on one page
   if(c.pin)H.classList.add('has');
   if(c.type==='heading')out.append(h('h2',{dir:d,className:u.trim()},c.text));
   else if(c.type==='text')out.append(h('p',{dir:d,className:u.trim()},c.text));
@@ -31,7 +31,7 @@ function exportPDF(){
    c.items.forEach((it,i)=>out.append(h('div',{className:'pli',dir:d==='auto'?P.dir:d},h('b',{},marker(c,i)),h('span',{},it.t||''))));
   }
   else if(c.type==='choice'){
-   out.append(h('div',{className:'pch',dir:d},
+   out.append(h('div',{className:'pch',dir:d==='auto'?P.dir:d},
     h('b',{className:u.trim()},c.text?c.text+':':''),
     c.opts.map((o,i)=>h('span',{className:'po'+(c.sel===i?' circ':'')},o)),
     c.detail?[h('b',{},(c.dlabel||'')+':'),h('span',{className:'pdl',dir:'auto'},c.dtext||'')]:[]));
@@ -48,6 +48,7 @@ function exportPDF(){
    out.append(h('table',{},h('thead',{},hr),tb));
   }
  if(['question','fields','choice','lines'].includes(c.type))for(let k=0;k<(c.lines||0);k++)out.append(h('div',{className:'bl',dir:d},(c.lt||[])[k]||''));
+  if(!c.pin)P.append(out);
  });
  // Layout: [top text, repeats] > [title, first page only] > [pinned cells, repeat] > content
  const wrap=(hd,nodes)=>{const td=h('td');td.append(...nodes);return h('table',{className:'pg'},h('thead',{},h('tr',{},h('td',{},hd))),h('tbody',{},h('tr',{},td)))};
@@ -56,7 +57,15 @@ function exportPDF(){
  const inner=T?[T,...core]:core;
  if(D.top)P.replaceChildren(wrap(h('div',{className:'phd'},h('div',{className:'bsd'},D.top)),inner));
  else P.replaceChildren(...inner);
+ fitRows(P);
  const oldTitle=document.title;document.title=D.title||'document'; // browser prints this in its header, and uses it as the PDF file name
  window.addEventListener('afterprint',()=>{document.title=oldTitle},{once:true});
  window.print();
+}
+
+// If a row of fields is too wide for the page, first tighten the gaps between the choice options (then wrap only if still needed)
+function fitRows(P){
+ P.style.cssText='display:block;position:absolute;left:-9999px;width:182mm;font-size:12pt';
+ P.querySelectorAll('.pf').forEach(r=>{for(const k of ['tight','tighter']){if(r.scrollWidth<=r.clientWidth+1)break;r.classList.add(k)}});
+ P.removeAttribute('style');
 }

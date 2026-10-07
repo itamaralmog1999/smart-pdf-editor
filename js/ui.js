@@ -78,7 +78,7 @@ function render(){
 
 // One row of 1-4 fields, divided evenly (e.g. start date / end date)
 // column widths in a fields row: narrow / normal / wide
-const colsOf=(fs,pr)=>fs.map(f=>pr&&f.type==='choice'?'minmax(max-content,1fr)':'minmax(0,'+({n:0.6,w:2.5}[f.w]||1)+'fr)').join(' ');
+const colsOf=(fs,pr)=>fs.map(f=>{const w=({n:0.6,w:2.5}[f.w]||1);return pr&&f.type==='choice'?'minmax(max-content,'+w+'fr)':'minmax(0,'+w+'fr)'}).join(' ');
 const newF=i=>({label:t('fl')+' '+i,type:'text',value:''});
 function fieldsUI(c){
  if(!c.fields)c.fields=c.frows?c.frows[0]:[newF(1),newF(2)]; // migrate older documents
@@ -172,6 +172,9 @@ function choiceFieldUI(f){
   w.append(box);
  });
  if(f.opts.length<5)w.append(btn(t('addO'),()=>{f.opts.push({text:''});save();render()}));
+ const dcb=h('input',{type:'checkbox',checked:!!f.detail,on:{change:e=>{f.detail=e.target.checked;if(f.detail&&!f.dlabel)f.dlabel=t('det');save();render()}}});
+ w.append(h('label',{className:'c'},dcb,t('det')));
+ if(f.detail)w.append(field(f,'dlabel',t('dlab'),'fl',false),field(f,'dtext','','line',false));
  return w;
 }
 
