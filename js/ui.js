@@ -49,10 +49,8 @@ function cellUI(c,i){
  pb.title=t('pin');
  const pgb=btn('📄',()=>{c.pb=!c.pb;save();render()},c.pb?'on':'');
  pgb.title=t('pb');
- const lk=btn('🔒',()=>{c.pg=c.pg?undefined:((window._L&&window._L.page[i])||1);save();render()},c.pg?'on':'');
- lk.title=t('lock');
  const tools=h('div',{className:'tools'},t({heading:'h',text:'t',question:'q',table:'tb',fields:'fr',choice:'ch',lines:'ln',list:'ls',check:'ck'}[c.type])+(c.pin?' · '+t('pinned'):''),
-  h('span',{className:'pgno','data-i':i}),h('span',{className:'sp'}),lk,pgb,pb,ub,sel,btn('▲',()=>move(i,-1)),btn('▼',()=>move(i,1)),btn('✕',()=>{D.cells.splice(i,1);save();render()},'x'));
+  h('span',{className:'pgno','data-i':i}),h('span',{className:'sp'}),pgb,pb,ub,sel,btn('▲',()=>move(i,-1)),btn('▼',()=>move(i,1)),btn('✕',()=>{D.cells.splice(i,1);save();render()},'x'));
  tools.querySelector('button:last-child').title=t('del');
  const body=h('div',{className:'body'});
  if(c.type==='heading')body.append(field(c,'text',t('title'),'h ut',false));
@@ -65,7 +63,7 @@ function cellUI(c,i){
  else if(c.type==='check')body.append(checkUI(c));
  else body.append(field(c,'text',t('ph'),'',false),tableUI(c));
  if(c.u)body.classList.add('ul');
- if(c.pb||c.pg)body.prepend(pgOpt(c));
+ if(c.pb)body.prepend(pgOpt(c));
  return h('div',{className:'cell'},tools,body);
 }
 
@@ -98,12 +96,12 @@ function fieldsUI(c){
  g.style.gridTemplateColumns=colsOf(c.fields);
  c.fields.forEach(f=>{
   const typeSel=h('select',{on:{change:e=>{f.type=e.target.value;f.value='';if(f.type==='choice'&&!f.opts){f.opts=[{text:t('o1')},{text:t('o2')}];f.sel=null}save();render()}}},
-   ['text','date','number','choice'].map(v=>h('option',{value:v,selected:f.type===v},t('f'+v))));
+   ['text','date','number','cap','choice'].map(v=>h('option',{value:v,selected:f.type===v},t('f'+v))));
   const wSel=h('select',{on:{change:e=>{f.w=e.target.value;save();render()}}},
    [['n','wn'],['m','wm'],['w','ww']].map(([v,k])=>h('option',{value:v,selected:(f.w||'m')===v},t(k))));
-  const val=f.type==='text'?field(f,'value','','line',true):h('input',{type:f.type,value:f.value||'',className:'line',dir:'auto'});
-  if(f.type!=='text')val.addEventListener('input',()=>{f.value=val.value;save()});
-  g.append(h('div',{className:'fld'},field(f,'label',t('fl'),'fl',false),f.type==='choice'?choiceFieldUI(f):[val,f.type==='date'?'':field(f,'unit',t('unit'),'unit',false)],h('div',{className:'tb'},typeSel,wSel)));
+  const val=(f.type==='text'||f.type==='cap')?field(f,'value','','line',true):h('input',{type:f.type,value:f.value||'',className:'line',dir:'auto'});
+  if(f.type!=='text'&&f.type!=='cap')val.addEventListener('input',()=>{f.value=val.value;save()});
+  g.append(h('div',{className:'fld'},field(f,'label',f.type==='cap'?t('cpl'):t('fl'),'fl',false),f.type==='choice'?choiceFieldUI(f):[val,f.type==='date'?'':f.type==='cap'?field(f,'prefix',t('pfx'),'unit',false):field(f,'unit',t('unit'),'unit',false)],h('div',{className:'tb'},typeSel,wSel)));
  });
  return h('div',{},h('div',{className:'tb'},t('inRow')+':',n),g);
 }
@@ -221,14 +219,5 @@ function checkUI(c){
  return w;
 }
 
-// Page options of a cell: starts on a new page / locked so it never moves to an earlier page
-function pgOpt(c){
- const row=h('div',{className:'tb'});
- if(c.pb)row.append(h('b',{},'📄 '+t('pb')));
- if(c.pg){
-  const i=h('input',{type:'number',min:1,max:99,value:c.pg,className:'num'});
-  i.addEventListener('input',()=>{c.pg=Math.max(1,parseInt(i.value)||1);save()});
-  row.append(h('label',{className:'c'},'🔒 '+t('pgmin')+':',i));
- }
- return row;
-}
+// Shown on a cell that starts a new page
+function pgOpt(c){return h('div',{className:'tb'},h('b',{},'📄 '+t('pb')))}

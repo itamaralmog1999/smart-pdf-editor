@@ -1,7 +1,9 @@
 // PDF export (via browser print). Edit print look in css/style.css (@media print).
 // Each field sizes itself to its content; if the row is too full the next field moves down (no overlap)
-const pf=f=>{const e=pf0(f);e.style.flexGrow=({n:0.6,w:2.5}[f.w]||1);const v=e.querySelector(':scope>span:not(.pco):not(.pdl)');if(v)v.style.minWidth=({n:'36pt',w:'160pt'}[f.w]||'80pt');return e};
-const pf0=f=>f.type==='choice'
+const pf=f=>{const e=pf0(f);e.style.flexGrow=({n:0.6,w:2.5}[f.w]||1);const v=e.querySelector(':scope>span:not(.pco):not(.pdl),:scope>.capcol');if(v)v.style.minWidth=({n:'36pt',w:'160pt'}[f.w]||'80pt');return e};
+const pf0=f=>f.type==='cap'
+ ?h('div',{className:'pfld cap'},f.prefix?h('b',{className:'pre'},f.prefix):'',h('div',{className:'capcol'},h('span',{dir:'auto'},f.value||''),h('i',{className:'cp'},f.label||'')))
+ :f.type==='choice'
  ?h('div',{className:'pfld'},h('b',{},f.label?f.label+':':''),h('span',{className:'pco'},f.opts.map((o,i)=>h('span',{className:'po'+(f.sel===i?' circ':'')},o.text,o.fill?[' ',h('span',{className:'pfl'},o.val||''),' '+(o.unit||'')]:[]))),f.detail?[h('b',{},(f.dlabel||'')+':'),h('span',{className:'pdl',dir:'auto'},f.dtext||'')]:'')
  :h('div',{className:'pfld'},h('b',{},f.label?f.label+':':''),h('span',{dir:'auto',className:f.type==='number'?'ctr':''},fv(f)),f.unit?h('b',{dir:'auto'},f.unit):'');
 const fv=f=>f.type==='date'&&f.value?f.value.split('-').reverse().join('/'):(f.value||'');
@@ -50,7 +52,7 @@ function buildPrint(plan){
   }
  if(['question','fields','choice','lines'].includes(c.type))for(let k=0;k<(c.lines||0);k++)out.append(h('div',{className:'bl',dir:d},(c.lt||[])[k]||''));
   if(!c.pin){
-   if(plan){if(plan.brk[ci])out.classList.add('pbrk');for(let k=0;k<(plan.extra[ci]||0);k++)P.append(h('div',{className:'pgx',style:'height:'+Math.max(10,plan.avail-6)+'px'}))}
+   if(plan&&plan.brk[ci])out.classList.add('pbrk');
    P.append(out);
   }
  });
@@ -89,13 +91,12 @@ function measureLayout(){
  const th=P.querySelector('table.pg>thead'),T=P.querySelector('h1');
  const avail=mm(265)-(th?th.offsetHeight:0);
  let page=1,y=T?T.offsetHeight+pt(12):0,last=1;
- const L={page:{},first:{},brk:{},extra:{},avail};
+ const L={page:{},first:{},brk:{}};
  P.querySelectorAll('.kw').forEach(k=>{
   const i=+k.dataset.i,c=D.cells[i],hh=k.offsetHeight;let gap=y>0?pt(7):0;
   const forced=c.pb&&y>0;
   if(forced){page++;y=0;gap=0}
-  if(c.pg>page){L.extra[i]=c.pg-page;page=c.pg;y=0;gap=0}
-  L.brk[i]=forced||!!L.extra[i];
+  L.brk[i]=forced;
   if(y>0&&y+gap+hh>avail){page++;y=0;gap=0}
   L.page[i]=page;L.first[i]=page>last;
   y+=gap+hh;

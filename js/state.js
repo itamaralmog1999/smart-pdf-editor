@@ -1,4 +1,4 @@
-const VERSION='2026-10-13'; // shown next to the autosave note, to confirm an update arrived
+const VERSION='2026-10-14'; // shown next to the autosave note, to confirm an update arrived
 // App state (D), helpers, and autosave to the browser.
 const KEY='nbeditor.v1';
 let D=load()||{title:'',lang:'he',cells:[]};
