@@ -77,23 +77,27 @@ function render(){
 
 
 // One row of 1-4 fields, divided evenly (e.g. start date / end date)
+// column widths in a fields row: narrow / normal / wide
+const colsOf=(fs,pr)=>fs.map(f=>pr&&f.type==='choice'?'minmax(max-content,1fr)':'minmax(0,'+({n:0.6,w:2.5}[f.w]||1)+'fr)').join(' ');
 const newF=i=>({label:t('fl')+' '+i,type:'text',value:''});
 function fieldsUI(c){
  if(!c.fields)c.fields=c.frows?c.frows[0]:[newF(1),newF(2)]; // migrate older documents
- c.fields=c.fields.slice(0,4);
+ c.fields=c.fields.slice(0,6);
  const n=h('select',{on:{change:e=>{
   const k=+e.target.value;
   while(c.fields.length<k)c.fields.push(newF(c.fields.length+1));
   c.fields.length=k;save();render();
- }}},[1,2,3,4].map(v=>h('option',{value:v,selected:v===c.fields.length},v)));
+ }}},[1,2,3,4,5,6].map(v=>h('option',{value:v,selected:v===c.fields.length},v)));
  const g=h('div',{className:'frow'});
- g.style.setProperty('--n',c.fields.length);
+ g.style.gridTemplateColumns=colsOf(c.fields);
  c.fields.forEach(f=>{
   const typeSel=h('select',{on:{change:e=>{f.type=e.target.value;f.value='';if(f.type==='choice'&&!f.opts){f.opts=[{text:t('o1')},{text:t('o2')}];f.sel=null}save();render()}}},
    ['text','date','number','choice'].map(v=>h('option',{value:v,selected:f.type===v},t('f'+v))));
+  const wSel=h('select',{on:{change:e=>{f.w=e.target.value;save();render()}}},
+   [['n','wn'],['m','wm'],['w','ww']].map(([v,k])=>h('option',{value:v,selected:(f.w||'m')===v},t(k))));
   const val=h('input',{type:f.type,value:f.value||'',className:'line',dir:'auto'});
   val.addEventListener('input',()=>{f.value=val.value;save()});
-  g.append(h('div',{className:'fld'},field(f,'label',t('fl'),'fl',false),f.type==='choice'?choiceFieldUI(f):[val,f.type==='date'?'':field(f,'unit',t('unit'),'unit',false)],typeSel));
+  g.append(h('div',{className:'fld'},field(f,'label',t('fl'),'fl',false),f.type==='choice'?choiceFieldUI(f):[val,f.type==='date'?'':field(f,'unit',t('unit'),'unit',false)],h('div',{className:'tb'},typeSel,wSel)));
  });
  return h('div',{},h('div',{className:'tb'},t('inRow')+':',n),g);
 }

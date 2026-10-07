@@ -36,7 +36,7 @@ label.c input{width:auto}
  #print h1{font-size:22pt;margin:0 0 12pt}#print h2{font-size:15pt;margin:14pt 0 4pt}
  #print p{margin:4pt 0;white-space:pre-wrap}#print .q{font-weight:700}
  #print .pch{display:flex;flex-wrap:wrap;gap:4pt 12pt;align-items:flex-end;margin:8pt 0}
- #print .po{padding:1pt 9pt;border:1pt solid transparent}
+ #print .po{padding:1pt 6pt;border:1pt solid transparent}
  #print .circ{border-color:#000;border-radius:12pt}
  #print .pdl{flex:1 1 120pt;border-bottom:1pt solid #000;min-height:15pt;padding:0 4pt}
  #print .pco{flex:1;display:flex;flex-wrap:wrap;gap:3pt 6pt;align-items:flex-end}
