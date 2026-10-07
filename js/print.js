@@ -1,5 +1,7 @@
 // PDF export (via browser print). Edit print look in css/style.css (@media print).
-const pf=f=>f.type==='choice'
+// Each field sizes itself to its content; if the row is too full the next field moves down (no overlap)
+const pf=f=>{const e=pf0(f);e.style.flexGrow=({n:0.6,w:2.5}[f.w]||1);const v=e.querySelector(':scope>span:not(.pco):not(.pdl)');if(v)v.style.minWidth=({n:'36pt',w:'160pt'}[f.w]||'80pt');return e};
+const pf0=f=>f.type==='choice'
  ?h('div',{className:'pfld'},h('b',{},f.label?f.label+':':''),h('span',{className:'pco'},f.opts.map((o,i)=>h('span',{className:'po'+(f.sel===i?' circ':'')},o.text,o.fill?[' ',h('span',{className:'pfl'},o.val||''),' '+(o.unit||'')]:[]))),f.detail?[h('b',{},(f.dlabel||'')+':'),h('span',{className:'pdl',dir:'auto'},f.dtext||'')]:'')
  :h('div',{className:'pfld'},h('b',{},f.label?f.label+':':''),h('span',{dir:'auto',className:f.type==='number'?'ctr':''},fv(f)),f.unit?h('b',{dir:'auto'},f.unit):'');
 const fv=f=>f.type==='date'&&f.value?f.value.split('-').reverse().join('/'):(f.value||'');
@@ -16,7 +18,6 @@ function exportPDF(){
   else if(c.type==='question')out.append(h('p',{dir:d,className:'q'+u},c.text),h('p',{dir:d},c.answer||''));
   else if(c.type==='fields'){
    const g=h('div',{className:'pf',dir:d==='auto'?P.dir:d},c.fields.map(pf));
-   g.style.gridTemplateColumns=colsOf(c.fields,1);
    out.append(g);
   }
   else if(c.type==='lines'){}
@@ -66,6 +67,7 @@ function exportPDF(){
 // If a row of fields is too wide for the page, first tighten the gaps between the choice options (then wrap only if still needed)
 function fitRows(P){
  P.style.cssText='display:block;position:absolute;left:-9999px;width:182mm;font-size:12pt';
- P.querySelectorAll('.pf').forEach(r=>{for(const k of ['tight','tighter']){if(r.scrollWidth<=r.clientWidth+1)break;r.classList.add(k)}});
+ const wrapped=r=>{const k=[...r.children];return k.some(x=>Math.abs(x.getBoundingClientRect().top-k[0].getBoundingClientRect().top)>2)};
+ P.querySelectorAll('.pf').forEach(r=>{for(const k of ['tight','tighter']){if(!wrapped(r))break;r.classList.add(k)}});
  P.removeAttribute('style');
 }

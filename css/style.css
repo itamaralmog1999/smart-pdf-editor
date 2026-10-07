@@ -55,12 +55,12 @@ label.c input{width:auto}
 #print .phd.has{border-bottom:1pt solid #888;padding-bottom:4pt;margin-bottom:10pt}
 #print .bsd{text-align:right;direction:rtl;font-size:9pt}
 #print .hl{font-size:11pt;padding-bottom:3pt;border-bottom:1pt solid #888}
-#print .pf{display:grid;gap:6pt 18pt;margin:0}
+#print .pf{display:flex;flex-wrap:wrap;gap:6pt 18pt;margin:0}
 #print .pf.tight{gap:6pt 10pt}#print .pf.tight .po{padding:1pt 3pt}#print .pf.tight .pco{gap:2pt 2pt}
 #print .pf.tighter{gap:4pt 5pt}#print .pf.tighter .po{padding:0 1pt}#print .pf.tighter .pco{gap:0 1pt}
-#print .pfld{display:flex;gap:6pt;align-items:flex-end;min-width:0}
+#print .pfld{display:flex;gap:6pt;align-items:flex-end;flex:1 1 auto}
 #print .pfld b{white-space:nowrap}
-#print .pfld>span:not(.pco){flex:1;border-bottom:1pt solid #000;min-height:var(--lh);display:flex;align-items:flex-end;padding:0 4pt}
+#print .pfld>span:not(.pco){flex:1 1 auto;white-space:pre-wrap;border-bottom:1pt solid #000;min-height:var(--lh);display:flex;align-items:flex-end;padding:0 4pt}
 #print .pfld>span.ctr{justify-content:center}
 #print table{margin:8pt 0;page-break-inside:avoid}#print th,#print td{padding:4pt 6pt;min-width:0}
 #print th{background:#e8f1f8!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}

@@ -95,8 +95,8 @@ function fieldsUI(c){
    ['text','date','number','choice'].map(v=>h('option',{value:v,selected:f.type===v},t('f'+v))));
   const wSel=h('select',{on:{change:e=>{f.w=e.target.value;save();render()}}},
    [['n','wn'],['m','wm'],['w','ww']].map(([v,k])=>h('option',{value:v,selected:(f.w||'m')===v},t(k))));
-  const val=h('input',{type:f.type,value:f.value||'',className:'line',dir:'auto'});
-  val.addEventListener('input',()=>{f.value=val.value;save()});
+  const val=f.type==='text'?field(f,'value','','line',true):h('input',{type:f.type,value:f.value||'',className:'line',dir:'auto'});
+  if(f.type!=='text')val.addEventListener('input',()=>{f.value=val.value;save()});
   g.append(h('div',{className:'fld'},field(f,'label',t('fl'),'fl',false),f.type==='choice'?choiceFieldUI(f):[val,f.type==='date'?'':field(f,'unit',t('unit'),'unit',false)],h('div',{className:'tb'},typeSel,wSel)));
  });
  return h('div',{},h('div',{className:'tb'},t('inRow')+':',n),g);
