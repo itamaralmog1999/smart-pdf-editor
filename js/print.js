@@ -1,4 +1,7 @@
 // PDF export (via browser print). Edit print look in css/style.css (@media print).
+const pf=f=>f.type==='choice'
+ ?h('div',{className:'pfld'},h('b',{},f.label+':'),h('span',{className:'pco'},f.opts.map((o,i)=>h('span',{className:'po'+(f.sel===i?' circ':'')},o.text,o.fill?[' ',h('span',{className:'pfl'},o.val||''),' '+(o.unit||'')]:[]))))
+ :h('div',{className:'pfld'},h('b',{},f.label+':'),h('span',{dir:'auto'},fv(f)),f.unit?h('b',{},f.unit):'');
 const fv=f=>f.type==='date'&&f.value?f.value.split('-').reverse().join('/'):(f.value||'');
 function exportPDF(){
  const P=$('print');P.replaceChildren();
@@ -12,7 +15,7 @@ function exportPDF(){
   else if(c.type==='text')out.append(h('p',{dir:d,className:u.trim()},c.text));
   else if(c.type==='question')out.append(h('p',{dir:d,className:'q'+u},c.text),h('p',{dir:d},c.answer||''));
   else if(c.type==='fields'){
-   const g=h('div',{className:'pf',dir:d},c.fields.map(f=>h('div',{className:'pfld'},h('b',{},f.label+':'),h('span',{dir:'auto'},fv(f)))));
+   const g=h('div',{className:'pf',dir:d},c.fields.map(pf));
    g.style.gridTemplateColumns='repeat('+c.fields.length+',1fr)';
    out.append(g);
   }

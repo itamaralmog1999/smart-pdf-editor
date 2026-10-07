@@ -39,6 +39,8 @@ label.c input{width:auto}
  #print .po{padding:1pt 9pt;border:1pt solid transparent}
  #print .circ{border-color:#000;border-radius:12pt}
  #print .pdl{flex:1 1 120pt;border-bottom:1pt solid #000;min-height:15pt;padding:0 4pt}
+ #print .pco{flex:1;display:flex;flex-wrap:wrap;gap:3pt 6pt;align-items:flex-end}
+ #print .pfl{display:inline-block;min-width:36pt;border-bottom:1pt solid #000;text-align:center}
  #print .bl{border-bottom:1pt solid #000;height:22pt}
  #print table.pg{margin:0;width:100%;page-break-inside:auto}
  #print table.pg>thead>tr>td,#print table.pg>tbody>tr>td{border:0;padding:0;vertical-align:top}
@@ -49,7 +51,7 @@ label.c input{width:auto}
  #print .pf{display:grid;gap:6pt 18pt;margin:8pt 0}
  #print .pfld{display:flex;gap:6pt;align-items:flex-end;min-width:0}
  #print .pfld b{white-space:nowrap}
- #print .pfld span{flex:1;border-bottom:1pt solid #000;min-height:15pt;padding:0 4pt}
+ #print .pfld>span:not(.pco){flex:1;border-bottom:1pt solid #000;min-height:15pt;padding:0 4pt}
  #print table{margin:8pt 0;page-break-inside:avoid}#print th,#print td{padding:4pt 6pt;min-width:0}
  #print th{background:#e8f1f8!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
@@ -85,3 +87,11 @@ button.on{background:var(--acc2);border-color:var(--acc);color:var(--acc);font-w
 label.c input.num{width:70px}
 .blpv{margin-top:6px}
 .blp{border-bottom:1px solid #8a94a3;height:24px}
+
+.cf{display:flex;flex-direction:column;gap:4px;margin:4px 0}
+.copt{border:1px solid var(--line);border-radius:10px;padding:2px 4px;background:#fff}
+.copt.sel{border:2px solid var(--acc);background:var(--acc2)}
+.copt .r{display:flex;align-items:center;gap:2px;min-width:0}
+.copt .r input{min-width:0;width:100%;padding:3px}
+.copt button{border:0;background:none;padding:2px 6px;font-size:16px}
+.fld input.unit{padding:3px;font-size:13px}

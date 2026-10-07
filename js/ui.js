@@ -85,11 +85,11 @@ function fieldsUI(c){
  const g=h('div',{className:'frow'});
  g.style.setProperty('--n',c.fields.length);
  c.fields.forEach(f=>{
-  const typeSel=h('select',{on:{change:e=>{f.type=e.target.value;f.value='';save();render()}}},
-   ['text','date','number'].map(v=>h('option',{value:v,selected:f.type===v},t('f'+v))));
+  const typeSel=h('select',{on:{change:e=>{f.type=e.target.value;f.value='';if(f.type==='choice'&&!f.opts){f.opts=[{text:t('o1')},{text:t('o2')}];f.sel=null}save();render()}}},
+   ['text','date','number','choice'].map(v=>h('option',{value:v,selected:f.type===v},t('f'+v))));
   const val=h('input',{type:f.type,value:f.value||'',className:'line',dir:'auto'});
   val.addEventListener('input',()=>{f.value=val.value;save()});
-  g.append(h('div',{className:'fld'},field(f,'label',t('fl'),'fl',false),val,typeSel));
+  g.append(h('div',{className:'fld'},field(f,'label',t('fl'),'fl',false),f.type==='choice'?choiceFieldUI(f):[val,f.type==='date'?'':field(f,'unit',t('unit'),'unit',false)],typeSel));
  });
  return h('div',{},h('div',{className:'tb'},t('inRow')+':',n),g);
 }
@@ -142,5 +142,23 @@ function choiceUI(c){
  w.append(h('div',{className:'tb'},h('label',{className:'c'},cb,t('det'))));
  if(c.detail)w.append(h('div',{className:'tb dt'},field(c,'dlabel',t('dlab'),'fl',false),field(c,'dtext','','line',false)));
  w.append(linesCtl(c));
+ return w;
+}
+
+// A choice inside a "fields in a row" cell: options to circle (no details); an option can be a fill-in line with a unit
+function choiceFieldUI(f){
+ const w=h('div',{className:'cf'});
+ f.opts.forEach((o,i)=>{
+  const on=f.sel===i;
+  const cb=h('input',{type:'checkbox',checked:!!o.fill,on:{change:e=>{o.fill=e.target.checked;save();render()}}});
+  const box=h('div',{className:'copt'+(on?' sel':'')},
+   h('div',{className:'r'},btn(on?'●':'○',()=>{f.sel=on?null:i;save();render()}),
+    field(o,'text',t('opt'),'',false),
+    h('label',{className:'c',title:t('fill')},cb,t('fill')),
+    f.opts.length>2?btn('✕',()=>{f.opts.splice(i,1);if(f.sel===i)f.sel=null;else if(f.sel>i)f.sel--;save();render()},'x'):''));
+  if(o.fill)box.append(h('div',{className:'r'},field(o,'val','','line',false),field(o,'unit',t('unit'),'unit',false)));
+  w.append(box);
+ });
+ if(f.opts.length<5)w.append(btn(t('addO'),()=>{f.opts.push({text:''});save();render()}));
  return w;
 }
