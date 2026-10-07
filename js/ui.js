@@ -47,8 +47,12 @@ function cellUI(c,i){
  if(ub){ub.style.textDecoration='underline';ub.title=t('u')}
  const pb=btn('📌',()=>{c.pin=!c.pin;save();render()},c.pin?'on':'');
  pb.title=t('pin');
+ const pgb=btn('📄',()=>{c.pb=!c.pb;save();render()},c.pb?'on':'');
+ pgb.title=t('pb');
+ const lk=btn('🔒',()=>{c.pg=c.pg?undefined:((window._L&&window._L.page[i])||1);save();render()},c.pg?'on':'');
+ lk.title=t('lock');
  const tools=h('div',{className:'tools'},t({heading:'h',text:'t',question:'q',table:'tb',fields:'fr',choice:'ch',lines:'ln',list:'ls',check:'ck'}[c.type])+(c.pin?' · '+t('pinned'):''),
-  h('span',{className:'sp'}),pb,ub,sel,btn('▲',()=>move(i,-1)),btn('▼',()=>move(i,1)),btn('✕',()=>{D.cells.splice(i,1);save();render()},'x'));
+  h('span',{className:'pgno','data-i':i}),h('span',{className:'sp'}),lk,pgb,pb,ub,sel,btn('▲',()=>move(i,-1)),btn('▼',()=>move(i,1)),btn('✕',()=>{D.cells.splice(i,1);save();render()},'x'));
  tools.querySelector('button:last-child').title=t('del');
  const body=h('div',{className:'body'});
  if(c.type==='heading')body.append(field(c,'text',t('title'),'h ut',false));
@@ -61,6 +65,7 @@ function cellUI(c,i){
  else if(c.type==='check')body.append(checkUI(c));
  else body.append(field(c,'text',t('ph'),'',false),tableUI(c));
  if(c.u)body.classList.add('ul');
+ if(c.pb||c.pg)body.prepend(pgOpt(c));
  return h('div',{className:'cell'},tools,body);
 }
 
@@ -73,6 +78,7 @@ function render(){
   h('span',{className:'sp'}),h('small',{style:'color:var(--mute)'},t('saved')+' · v'+VERSION),btn(t('ui'),()=>{D.lang=D.lang==='he'?'en':'he';save();render()}));
  $('add').replaceChildren(btn('+ '+t('h'),()=>add('heading')),btn('+ '+t('t'),()=>add('text')),btn('+ '+t('q'),()=>add('question')),btn('+ '+t('tb'),()=>add('table')),btn('+ '+t('fr'),()=>add('fields')),btn('+ '+t('ch'),()=>add('choice')),btn('+ '+t('ln'),()=>add('lines')),btn('+ '+t('ls'),()=>add('list')),btn('+ '+t('ck'),()=>add('check')));
  $('cells').replaceChildren(...D.cells.flatMap((c,i)=>[inserter(i),cellUI(c,i)]),inserter(D.cells.length));
+ setTimeout(()=>{try{updatePages()}catch(e){}},0);
 }
 
 
@@ -213,4 +219,16 @@ function checkUI(c){
  });
  w.append(h('div',{className:'tb'},btn(t('row'),()=>{c.items.push({opts:[{text:''}],sel:null});save();render()})));
  return w;
+}
+
+// Page options of a cell: starts on a new page / locked so it never moves to an earlier page
+function pgOpt(c){
+ const row=h('div',{className:'tb'});
+ if(c.pb)row.append(h('b',{},'📄 '+t('pb')));
+ if(c.pg){
+  const i=h('input',{type:'number',min:1,max:99,value:c.pg,className:'num'});
+  i.addEventListener('input',()=>{c.pg=Math.max(1,parseInt(i.value)||1);save()});
+  row.append(h('label',{className:'c'},'🔒 '+t('pgmin')+':',i));
+ }
+ return row;
 }

@@ -37,6 +37,8 @@ label.c input{width:auto}
 #print p{margin:4pt 0;white-space:pre-wrap}#print .q{font-weight:700}#print .ul{text-decoration:underline}
 #print .kw{break-inside:avoid;page-break-inside:avoid;margin:7pt 0}
 #print .kw p{margin:0}
+#print .kw.pbrk{break-before:page}
+#print .pgx{break-before:page}
 #print .po{padding:1pt 5pt;border:1pt solid transparent}
 #print .circ{border-color:#000;border-radius:12pt}
 #print .pch{display:flex;flex-wrap:wrap;gap:4pt 8pt;align-items:flex-end;margin:0}
@@ -116,3 +118,6 @@ label.c input.num{width:70px}
 .ck{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:4px 0;padding-bottom:6px;border-bottom:1px dashed var(--line)}
 .ck .opt input{width:11em}
 .ck .sep{color:var(--mute);font-weight:700}
+
+.pgno{margin-inline-start:8px;color:var(--acc);font-weight:700}
+.cell.newpg{border-top:3px solid var(--acc)}
