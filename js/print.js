@@ -20,6 +20,12 @@ function exportPDF(){
    out.append(g);
   }
   else if(c.type==='lines'){}
+  else if(c.type==='check'){
+   if(c.text)out.append(h('p',{dir:d,className:'q'+u},c.text));
+   c.items.forEach(it=>out.append(h('div',{className:'pck',dir:d==='auto'?P.dir:d},
+    h('b',{},it.sel!=null?'●':'○'),
+    h('span',{},it.opts.map((o,k)=>[k?' / ':'',h('span',{className:'po'+(it.sel===k&&it.opts.length>1?' circ':'')},o.text)]).flat()))));
+  }
   else if(c.type==='list'){
    if(c.text)out.append(h('p',{dir:d,className:'q'+u},c.text));
    c.items.forEach((it,i)=>out.append(h('div',{className:'pli',dir:d==='auto'?P.dir:d},h('b',{},marker(c,i)),h('span',{},it.t||''))));
