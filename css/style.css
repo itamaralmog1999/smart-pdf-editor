@@ -125,3 +125,30 @@ label.c input.num{width:70px}
 
 .pgno{margin-inline-start:8px;color:var(--acc);font-weight:700}
 .cell.newpg{border-top:3px solid var(--acc)}
+
+/* ---- fill mode ---- */
+body.fillmode #title{pointer-events:none}
+#fnav{flex:1 1 100%;display:flex;gap:6px;overflow-x:auto;padding:2px 0}
+#fnav .fnb{min-width:36px;padding:4px 10px}
+.fc{background:var(--card);border:1px solid var(--line);border-radius:6px;margin:10px 0;padding:10px 12px}
+.fc.bare{background:transparent;border:0;padding:2px 0}
+.fh{font-size:22px;font-weight:700}
+.ft{white-space:pre-wrap;margin:2px 0}
+.fu{text-decoration:underline}
+.fq{font-weight:600;margin-bottom:6px}
+.ffr{display:flex;flex-wrap:wrap;gap:10px 16px}
+.ffld{flex:1 1 150px;min-width:0}
+.ffld.n{flex:.6 1 90px}
+.ffld.w{flex:2.5 1 240px}
+.flb{font-weight:700;font-size:14px}
+.fv{display:flex;align-items:flex-end;gap:6px}
+.fv .line,.fv .capc{flex:1;min-width:60px}
+.fv.fi{display:inline-flex}
+.fv.fi .line{width:110px;flex:none}
+.un,.pre{white-space:nowrap;padding-bottom:6px}
+.capc .cp{display:block;text-align:center;font-size:12px;color:var(--mute);font-style:normal}
+.chips{display:inline-flex;flex-wrap:wrap;gap:6px;align-items:center}
+.chip{border:1px solid var(--line);border-radius:20px;padding:5px 12px;background:#fff;font-size:15px}
+.chip.sel{border:2px solid var(--acc);background:var(--acc2);font-weight:600;padding:4px 11px}
+.fck{margin:4px 0}
+.pgdiv{margin:18px 0 4px;padding:3px 10px;background:var(--acc);color:#fff;border-radius:4px;font-weight:700}

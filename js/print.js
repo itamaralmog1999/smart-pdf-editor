@@ -109,7 +109,7 @@ function measureLayout(){
 // Shows the estimated page number on every cell, and marks the cell where a new page begins
 function updatePages(){
  if(window._printing)return;
- const L=measureLayout(buildPrint());window._L=L;
+ const L=measureLayout(buildPrint());window._L=L;if(D.fill){markFillPages(L);return}
  document.querySelectorAll('.pgno').forEach(s=>{
   const i=+s.dataset.i,p=L.page[i];
   s.textContent=p?t('pgl')+' '+p:'';s.title=t('pgest');
