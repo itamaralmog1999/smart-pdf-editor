@@ -5,6 +5,7 @@ function newCell(type){
  if(type==='fields')c.fields=[{label:t('fl')+' 1',type:'date',value:''},{label:t('fl')+' 2',type:'date',value:''}];
  if(type==='choice'){c.opts=[t('o1'),t('o2')];c.sel=null;c.detail=true;c.dlabel=t('det');c.dtext='';c.lines=2}
  if(type==='lines')c.lines=4;
+ if(type==='list'){c.items=[{t:''},{t:''},{t:''}];c.style='num'}
  if(type==='table'){c.headers=[t('c1')+' 1',t('c1')+' 2'];c.corner='';c.useRowHeaders=false;c.rowHeaders=[''];c.rows=[['','']]}
  return c;
 }
@@ -45,7 +46,7 @@ function cellUI(c,i){
  if(ub){ub.style.textDecoration='underline';ub.title=t('u')}
  const pb=btn('📌',()=>{c.pin=!c.pin;save();render()},c.pin?'on':'');
  pb.title=t('pin');
- const tools=h('div',{className:'tools'},t({heading:'h',text:'t',question:'q',table:'tb',fields:'fr',choice:'ch',lines:'ln'}[c.type])+(c.pin?' · '+t('pinned'):''),
+ const tools=h('div',{className:'tools'},t({heading:'h',text:'t',question:'q',table:'tb',fields:'fr',choice:'ch',lines:'ln',list:'ls'}[c.type])+(c.pin?' · '+t('pinned'):''),
   h('span',{className:'sp'}),pb,ub,sel,btn('▲',()=>move(i,-1)),btn('▼',()=>move(i,1)),btn('✕',()=>{D.cells.splice(i,1);save();render()},'x'));
  tools.querySelector('button:last-child').title=t('del');
  const body=h('div',{className:'body'});
@@ -55,6 +56,7 @@ function cellUI(c,i){
  else if(c.type==='fields')body.append(fieldsUI(c),linesCtl(c));
  else if(c.type==='choice')body.append(choiceUI(c));
  else if(c.type==='lines')body.append(linesUI(c));
+ else if(c.type==='list')body.append(listUI(c));
  else body.append(field(c,'text',t('ph'),'',false),tableUI(c));
  if(c.u)body.classList.add('ul');
  return h('div',{className:'cell'},tools,body);
@@ -67,7 +69,7 @@ function render(){
  const bar=$('bar');bar.replaceChildren(
   btn(t('pdf'),exportPDF,'p'),topInput(),btn(t('exp'),exportJSON),btn(t('imp'),()=>$('file').click()),btn(t('enc'),exportEncrypted),btn(t('clr'),clearData,'x'),
   h('span',{className:'sp'}),h('small',{style:'color:var(--mute)'},t('saved')+' · v'+VERSION),btn(t('ui'),()=>{D.lang=D.lang==='he'?'en':'he';save();render()}));
- $('add').replaceChildren(btn('+ '+t('h'),()=>add('heading')),btn('+ '+t('t'),()=>add('text')),btn('+ '+t('q'),()=>add('question')),btn('+ '+t('tb'),()=>add('table')),btn('+ '+t('fr'),()=>add('fields')),btn('+ '+t('ch'),()=>add('choice')),btn('+ '+t('ln'),()=>add('lines')));
+ $('add').replaceChildren(btn('+ '+t('h'),()=>add('heading')),btn('+ '+t('t'),()=>add('text')),btn('+ '+t('q'),()=>add('question')),btn('+ '+t('tb'),()=>add('table')),btn('+ '+t('fr'),()=>add('fields')),btn('+ '+t('ch'),()=>add('choice')),btn('+ '+t('ln'),()=>add('lines')),btn('+ '+t('ls'),()=>add('list')));
  $('cells').replaceChildren(...D.cells.flatMap((c,i)=>[inserter(i),cellUI(c,i)]),inserter(D.cells.length));
 }
 
@@ -100,7 +102,7 @@ function inserter(i){
  const box=h('div',{className:'ins'});
  const close=()=>box.replaceChildren(btn('+',open,'plus'));
  const open=()=>box.replaceChildren(
-  ...[['heading','h'],['text','t'],['question','q'],['table','tb'],['fields','fr'],['choice','ch'],['lines','ln']].map(([ty,k])=>btn(t(k),()=>insertAt(ty,i))),
+  ...[['heading','h'],['text','t'],['question','q'],['table','tb'],['fields','fr'],['choice','ch'],['lines','ln'],['list','ls']].map(([ty,k])=>btn(t(k),()=>insertAt(ty,i))),
   btn('✕',close,'x'));
  close();
  return box;
@@ -116,7 +118,11 @@ function topInput(){
 // Number of blank writing lines printed after a cell, with a live preview of the lines
 function linesCtl(c){
  const pv=h('div',{className:'blpv'});
- const draw=()=>pv.replaceChildren(...Array.from({length:Math.min(c.lines||0,15)},()=>h('div',{className:'blp'})));
+ const draw=()=>{c.lt=c.lt||[];pv.replaceChildren(...Array.from({length:c.lines||0},(_,k)=>{
+  const e=h('input',{value:c.lt[k]||'',className:'blp',dir:c._dir||'auto'});
+  e.addEventListener('input',()=>{c.lt[k]=e.value;save()});
+  e.addEventListener('keydown',ev=>{if(ev.key==='Enter'){ev.preventDefault();if(e.nextElementSibling)e.nextElementSibling.focus()}});
+  return e}))};
  const i=h('input',{type:'number',value:c.lines||0,min:0,max:60,className:'num'});
  i.addEventListener('input',()=>{c.lines=Math.max(0,Math.min(60,parseInt(i.value)||0));save();draw()});
  draw();
@@ -160,5 +166,20 @@ function choiceFieldUI(f){
   w.append(box);
  });
  if(f.opts.length<5)w.append(btn(t('addO'),()=>{f.opts.push({text:''});save();render()}));
+ return w;
+}
+
+// Numbered / bulleted list with a title (e.g. "Highlights: 1. 2. 3.")
+const HEB=['א','ב','ג','ד','ה','ו','ז','ח','ט','י','כ','ל','מ','נ','ס','ע','פ','צ','ק','ר','ש','ת'];
+const marker=(c,i)=>c.style==='dot'?'•':(c.style==='heb'&&HEB[i]?HEB[i]:i+1)+'.';
+function listUI(c){
+ const w=h('div');
+ w.append(field(c,'text',t('lt'),'ut',false));
+ c.items.forEach((it,i)=>w.append(h('div',{className:'li'},
+  h('span',{className:'mk'},marker(c,i)),field(it,'t',t('ph'),'',true),
+  c.items.length>1?btn('✕',()=>{c.items.splice(i,1);save();render()},'x'):'')));
+ const sel=h('select',{on:{change:e=>{c.style=e.target.value;save();render()}}},
+  [['num','snum'],['dot','sdot'],['heb','sheb']].map(([v,k])=>h('option',{value:v,selected:c.style===v},t(k))));
+ w.append(h('div',{className:'tb'},btn(t('addI'),()=>{c.items.push({t:''});save();render()}),sel));
  return w;
 }

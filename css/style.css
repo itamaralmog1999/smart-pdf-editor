@@ -41,7 +41,10 @@ label.c input{width:auto}
  #print .pdl{flex:1 1 120pt;border-bottom:1pt solid #000;min-height:15pt;padding:0 4pt}
  #print .pco{flex:1;display:flex;flex-wrap:wrap;gap:3pt 6pt;align-items:flex-end}
  #print .pfl{display:inline-block;min-width:36pt;border-bottom:1pt solid #000;text-align:center}
- #print .bl{border-bottom:1pt solid #000;height:22pt}
+ #print .bl{border-bottom:1pt solid #000;min-height:22pt;line-height:20pt;white-space:pre-wrap}
+ #print .pli{display:flex;gap:6pt;margin:2pt 0;align-items:flex-end}
+ #print .pli b{min-width:18pt}
+ #print .pli span{flex:1;border-bottom:1pt solid #000;min-height:20pt;white-space:pre-wrap}
  #print table.pg{margin:0;width:100%;page-break-inside:auto}
  #print table.pg>thead>tr>td,#print table.pg>tbody>tr>td{border:0;padding:0;vertical-align:top}
  #print .phd{margin-bottom:6pt}
@@ -86,7 +89,11 @@ button.on{background:var(--acc2);border-color:var(--acc);color:var(--acc);font-w
 .dt input.fl{flex:0 0 30%}
 label.c input.num{width:70px}
 .blpv{margin-top:6px}
-.blp{border-bottom:1px solid #8a94a3;height:24px}
+.blpv .blp{display:block;width:100%;border:0;border-bottom:1px solid #8a94a3;border-radius:0;height:28px;background:transparent}
+.blpv .blp:focus{border-bottom-color:var(--acc)}
+.li{display:flex;gap:6px;align-items:flex-start;margin:2px 0}
+.li .mk{min-width:26px;padding-top:7px;color:var(--mute);text-align:center}
+.li textarea{flex:1}
 
 .cf{display:flex;flex-direction:column;gap:4px;margin:4px 0}
 .copt{border:1px solid var(--line);border-radius:10px;padding:2px 4px;background:#fff}

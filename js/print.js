@@ -20,6 +20,10 @@ function exportPDF(){
    out.append(g);
   }
   else if(c.type==='lines'){}
+  else if(c.type==='list'){
+   if(c.text)out.append(h('p',{dir:d,className:'q'+u},c.text));
+   c.items.forEach((it,i)=>out.append(h('div',{className:'pli',dir:d==='auto'?P.dir:d},h('b',{},marker(c,i)),h('span',{},it.t||''))));
+  }
   else if(c.type==='choice'){
    out.append(h('div',{className:'pch',dir:d},
     h('b',{className:u.trim()},c.text?c.text+':':''),
@@ -37,7 +41,7 @@ function exportPDF(){
     r.forEach(x=>tr.append(h('td',{dir:d},x)));tb.append(tr)});
    out.append(h('table',{},h('thead',{},hr),tb));
   }
- if(['question','fields','choice','lines'].includes(c.type))for(let k=0;k<(c.lines||0);k++)out.append(h('div',{className:'bl'}));
+ if(['question','fields','choice','lines'].includes(c.type))for(let k=0;k<(c.lines||0);k++)out.append(h('div',{className:'bl',dir:d},(c.lt||[])[k]||''));
  });
  // Layout: [top text, repeats] > [title, first page only] > [pinned cells, repeat] > content
  const wrap=(hd,nodes)=>{const td=h('td');td.append(...nodes);return h('table',{className:'pg'},h('thead',{},h('tr',{},h('td',{},hd))),h('tbody',{},h('tr',{},td)))};
