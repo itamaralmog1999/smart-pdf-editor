@@ -1,7 +1,10 @@
 // PDF export (via browser print). Edit print look in css/style.css (@media print).
 // Each field sizes itself to its content; if the row is too full the next field moves down (no overlap)
 const pf=f=>{const e=pf0(f);e.style.flexGrow=({n:0.6,w:2.5}[f.w]||1);const v=e.querySelector(':scope>span:not(.pco):not(.pdl),:scope>.capcol');if(v)v.style.minWidth=({n:'36pt',w:'160pt'}[f.w]||'80pt');return e};
-const pf0=f=>f.type==='cap'
+const psig=(src,cap)=>h('div',{className:'psgw'},h('div',{className:'psg'},h('div',{className:'psgl'},src?h('img',{src}):''),h('i',{className:'cp'},cap||t('sig'))));
+const pf0=f=>f.type==='sig'
+ ?h('div',{className:'pfld cap'},f.prefix?h('b',{className:'pre'},f.prefix):'',h('div',{className:'capcol sg'},h('span',{},f.value?h('img',{src:f.value}):''),h('i',{className:'cp'},f.label||'')))
+ :f.type==='cap'
  ?h('div',{className:'pfld cap'},f.prefix?h('b',{className:'pre'},f.prefix):'',h('div',{className:'capcol'},h('span',{dir:'auto'},f.value||''),h('i',{className:'cp'},f.label||'')))
  :f.type==='choice'
  ?h('div',{className:'pfld'},h('b',{},f.label?f.label+':':''),h('span',{className:'pco'},f.opts.map((o,i)=>h('span',{className:'po'+(f.sel===i?' circ':'')},o.text,o.fill?[' ',h('span',{className:'pfl'},o.val||''),' '+(o.unit||'')]:[]))),f.detail?[h('b',{},(f.dlabel||'')+':'),h('span',{className:'pdl',dir:'auto'},f.dtext||'')]:'')
@@ -31,7 +34,7 @@ function buildPrint(plan){
   }
   else if(c.type==='list'){
    if(c.text)out.append(h('p',{dir:d,className:'q'+u},c.text));
-   c.items.forEach((it,i)=>out.append(h('div',{className:'pli',dir:d==='auto'?P.dir:d},h('b',{},marker(c,i)),h('span',{},it.t||''))));
+   c.items.forEach((it,i)=>{out.append(h('div',{className:'pli',dir:d==='auto'?P.dir:d},h('b',{},marker(c,i)),h('span',{},it.t||'')));if(c.sig)out.append(psig(it.sig,c.sigLabel))});
   }
   else if(c.type==='choice'){
    out.append(h('div',{className:'pch',dir:d==='auto'?P.dir:d},
@@ -73,7 +76,8 @@ function exportPDF(){
  const oldTitle=document.title;document.title=D.title||'document'; // browser prints this in its header, and uses it as the PDF file name
  window.addEventListener('afterprint',()=>{document.title=oldTitle;window._printing=false;updatePages()},{once:true});
  setTimeout(()=>{window._printing=false},60000);
- window.print();
+ const imgs=[...P.querySelectorAll('img')]; // wait until signatures are decoded, then print
+ if(imgs.length)Promise.all(imgs.map(i=>i.decode().catch(()=>0))).then(()=>window.print());else window.print();
 }
 
 // If a row of fields is too wide for the page, first tighten the gaps between the choice options (then wrap only if still needed)

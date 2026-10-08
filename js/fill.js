@@ -55,6 +55,7 @@ function fillFields(c){
   const box=h('div',{className:'ffld '+(f.w||'m')});
   if(f.type==='cap')box.append(h('div',{className:'fv'},f.prefix?h('b',{className:'pre',dir:'auto'},f.prefix):'',
    h('div',{className:'capc'},field(f,'value','','line',true),h('i',{className:'cp'},f.label||''))));
+  else if(f.type==='sig')box.append(h('div',{className:'fv'},f.prefix?h('b',{className:'pre',dir:'auto'},f.prefix):'',sigBox(f,'value',f.label)));
   else{
    box.append(h('div',{className:'flb',dir:'auto'},f.label||''));
    if(f.type==='choice')box.append(fillChoiceField(f));
@@ -93,7 +94,10 @@ function fillCell(c,i){
  else if(c.type==='lines')w.append(fillLines(c));
  else if(c.type==='list'){
   w.append(title());
-  c.items.forEach((it,k)=>w.append(h('div',{className:'li'},h('span',{className:'mk'},marker(c,k)),field(it,'t',t('ph'),'',true))));
+  c.items.forEach((it,k)=>{
+   w.append(h('div',{className:'li'},h('span',{className:'mk'},marker(c,k)),field(it,'t',t('ph'),'',true)));
+   if(c.sig)w.append(h('div',{className:'sgwrap'},sigBox(it,'sig',c.sigLabel)));
+  });
  }
  else if(c.type==='check'){
   w.append(title());

@@ -97,12 +97,12 @@ function fieldsUI(c){
  g.style.gridTemplateColumns=colsOf(c.fields);
  c.fields.forEach(f=>{
   const typeSel=h('select',{on:{change:e=>{f.type=e.target.value;f.value='';if(f.type==='choice'&&!f.opts){f.opts=[{text:t('o1')},{text:t('o2')}];f.sel=null}save();render()}}},
-   ['text','date','number','cap','choice'].map(v=>h('option',{value:v,selected:f.type===v},t('f'+v))));
+   ['text','date','number','cap','sig','choice'].map(v=>h('option',{value:v,selected:f.type===v},t('f'+v))));
   const wSel=h('select',{on:{change:e=>{f.w=e.target.value;save();render()}}},
    [['n','wn'],['m','wm'],['w','ww']].map(([v,k])=>h('option',{value:v,selected:(f.w||'m')===v},t(k))));
   const val=(f.type==='text'||f.type==='cap')?field(f,'value','','line',true):h('input',{type:f.type,value:f.value||'',className:'line',dir:'auto'});
   if(f.type!=='text'&&f.type!=='cap')val.addEventListener('input',()=>{f.value=val.value;save()});
-  g.append(h('div',{className:'fld'},field(f,'label',f.type==='cap'?t('cpl'):t('fl'),'fl',false),f.type==='choice'?choiceFieldUI(f):[val,f.type==='date'?'':f.type==='cap'?field(f,'prefix',t('pfx'),'unit',false):field(f,'unit',t('unit'),'unit',false)],h('div',{className:'tb'},typeSel,wSel)));
+  g.append(h('div',{className:'fld'},field(f,'label',(f.type==='cap'||f.type==='sig')?t('cpl'):t('fl'),'fl',false),f.type==='choice'?choiceFieldUI(f):f.type==='sig'?[field(f,'prefix',t('pfx'),'unit',false),sigBox(f,'value',f.label)]:[val,f.type==='date'?'':f.type==='cap'?field(f,'prefix',t('pfx'),'unit',false):field(f,'unit',t('unit'),'unit',false)],h('div',{className:'tb'},typeSel,wSel)));
  });
  return h('div',{},h('div',{className:'tb'},t('inRow')+':',n),g);
 }
@@ -189,12 +189,17 @@ const marker=(c,i)=>c.style==='dot'?'•':(c.style==='heb'&&HEB[i]?HEB[i]:i+1)+'
 function listUI(c){
  const w=h('div');
  w.append(field(c,'text',t('lt'),'ut',false));
- c.items.forEach((it,i)=>w.append(h('div',{className:'li'},
-  h('span',{className:'mk'},marker(c,i)),field(it,'t',t('ph'),'',true),
-  c.items.length>1?btn('✕',()=>{c.items.splice(i,1);save();render()},'x'):'')));
+ c.items.forEach((it,i)=>{
+  w.append(h('div',{className:'li'},
+   h('span',{className:'mk'},marker(c,i)),field(it,'t',t('ph'),'',true),
+   c.items.length>1?btn('✕',()=>{c.items.splice(i,1);save();render()},'x'):''));
+  if(c.sig)w.append(h('div',{className:'sgwrap'},sigBox(it,'sig',c.sigLabel)));
+ });
  const sel=h('select',{on:{change:e=>{c.style=e.target.value;save();render()}}},
   [['num','snum'],['dot','sdot'],['heb','sheb']].map(([v,k])=>h('option',{value:v,selected:c.style===v},t(k))));
- w.append(h('div',{className:'tb'},btn(t('addI'),()=>{c.items.push({t:''});save();render()}),sel));
+ const cb=h('input',{type:'checkbox',checked:!!c.sig,on:{change:e=>{c.sig=e.target.checked;save();render()}}});
+ w.append(h('div',{className:'tb'},btn(t('addI'),()=>{c.items.push({t:''});save();render()}),sel,h('label',{className:'c'},cb,t('sigall'))));
+ if(c.sig)w.append(field(c,'sigLabel',t('siglbl'),'unit',false));
  return w;
 }
 
