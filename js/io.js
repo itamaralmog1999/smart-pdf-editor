@@ -1,10 +1,11 @@
+// Export / import as a plain text file (.txt) containing JSON, because some phones block .json files. Importing accepts any text file.
 // JSON export / import, encrypted export, and clearing local data.
 function clean(){return JSON.parse(JSON.stringify(D,(k,v)=>k==='_dir'?undefined:v))}
 function download(obj,name){
- const a=h('a',{href:URL.createObjectURL(new Blob([JSON.stringify(obj,null,2)],{type:'application/json'})),download:name});
+ const a=h('a',{href:URL.createObjectURL(new Blob([JSON.stringify(obj,null,2)],{type:'text/plain'})),download:name});
  document.body.append(a);a.click();a.remove();
 }
-function exportJSON(){download(clean(),(D.title||'document')+'.json')}
+function exportJSON(){download(clean(),(D.title||'document')+'.txt')}
 
 // --- Encryption (AES-GCM, key from password via PBKDF2). Nothing leaves the browser. ---
 const b64=u=>{let s='';new Uint8Array(u).forEach(x=>s+=String.fromCharCode(x));return btoa(s)};
@@ -24,7 +25,7 @@ async function decryptDoc(j,pw){
 }
 async function exportEncrypted(){
  const pw=prompt(t('pw'));if(!pw)return;
- download(await encryptDoc(pw),(D.title||'document')+'.enc.json');
+ download(await encryptDoc(pw),(D.title||'document')+'.enc.txt');
 }
 
 function clearData(){
@@ -38,7 +39,7 @@ $('file').addEventListener('change',e=>{
  const r=new FileReader();
  r.onload=async()=>{
   try{
-   let j=JSON.parse(r.result);
+   let j=JSON.parse(r.result.replace(/^\uFEFF/,'').trim()); // the file is JSON text; works for .txt and .json
    if(j.encrypted){
     const pw=prompt(t('pw2'));if(!pw)return;
     try{j=await decryptDoc(j,pw)}catch(x){alert(t('wrongpw'));return}
