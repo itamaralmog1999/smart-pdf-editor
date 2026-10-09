@@ -3,7 +3,8 @@
 //
 // ONE-TIME SETUP (by you, the developer): create an OAuth Client ID of type "Web application" in Google Cloud Console,
 // add your site address (e.g. https://itamaralmog1999.github.io) under "Authorized JavaScript origins", and paste the Client ID here:
-const GOOGLE_CLIENT_ID='PASTE-YOUR-CLIENT-ID.apps.googleusercontent.com';
+
+const GOOGLE_CLIENT_ID='448128086418-7lhu422d8dv433c7eahe9o7pmh2laj1p.apps.googleusercontent.com';
 const DRIVE_SCOPE='https://www.googleapis.com/auth/drive.file';
 
 const DT={
