@@ -73,7 +73,7 @@ function render(){
  const ti=$('title');ti.value=D.title;ti.placeholder=t('title');ti.dir='auto';ti.readOnly=!!D.fill;document.body.classList.toggle('fillmode',!!D.fill);
  if(D.fill){renderFill();return}
  const bar=$('bar');bar.replaceChildren(
-  btn(t('pdf'),exportPDF,'p'),topInput(),btn(t('exp'),exportJSON),btn(t('imp'),()=>$('file').click()),btn(t('enc'),exportEncrypted),btn(t('clr'),clearData,'x'),btn(t('tofill'),()=>{D.fill=true;save();render();window.scrollTo(0,0)},'on'),
+  btn(t('pdf'),exportPDF,'p'),driveBtn(),topInput(),btn(t('exp'),exportJSON),btn(t('imp'),()=>$('file').click()),btn(t('enc'),exportEncrypted),btn(t('clr'),clearData,'x'),btn(t('tofill'),()=>{D.fill=true;save();render();window.scrollTo(0,0)},'on'),
   h('span',{className:'sp'}),h('small',{style:'color:var(--mute)'},t('saved')+' · v'+VERSION),btn(t('ui'),()=>{D.lang=D.lang==='he'?'en':'he';save();render()}));
  $('add').replaceChildren(btn('+ '+t('h'),()=>add('heading')),btn('+ '+t('t'),()=>add('text')),btn('+ '+t('q'),()=>add('question')),btn('+ '+t('tb'),()=>add('table')),btn('+ '+t('fr'),()=>add('fields')),btn('+ '+t('ch'),()=>add('choice')),btn('+ '+t('ln'),()=>add('lines')),btn('+ '+t('ls'),()=>add('list')),btn('+ '+t('ck'),()=>add('check')));
  $('cells').replaceChildren(...D.cells.flatMap((c,i)=>[inserter(i),cellUI(c,i)]),inserter(D.cells.length));

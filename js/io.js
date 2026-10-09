@@ -1,6 +1,6 @@
 // Export / import as a plain text file (.txt) containing JSON, because some phones block .json files. Importing accepts any text file.
 // JSON export / import, encrypted export, and clearing local data.
-function clean(){return JSON.parse(JSON.stringify(D,(k,v)=>k==='_dir'?undefined:v))}
+function clean(){return JSON.parse(JSON.stringify(D,(k,v)=>k==='_dir'||k==='fid'||k==='fname'?undefined:v))}
 function download(obj,name){
  const a=h('a',{href:URL.createObjectURL(new Blob([JSON.stringify(obj,null,2)],{type:'text/plain'})),download:name});
  document.body.append(a);a.click();a.remove();

@@ -170,3 +170,25 @@ body.fillmode #title{pointer-events:none}
 .sgbox{background:#fff;border-radius:10px;padding:12px;width:min(560px,100%)}
 .sgt{font-weight:700;margin-bottom:8px}
 .sgcv{display:block;width:100%;aspect-ratio:3/1;touch-action:none;border:1px dashed var(--line);border-radius:6px;background:#fff linear-gradient(transparent 74%,#9aa5b4 74%,#9aa5b4 75%,transparent 75%)}
+
+/* ---- Google Drive: file bar + login ---- */
+.dp{display:none;position:fixed;top:0;bottom:0;inset-inline-start:0;width:min(94vw,390px);background:#fff;z-index:60;box-shadow:0 0 30px rgba(0,0,0,.35);flex-direction:column}
+.dp.open{display:flex}
+.dph{display:flex;align-items:center;padding:10px 12px;border-bottom:1px solid var(--line);font-size:17px}
+.dpa{padding:8px 12px;border-bottom:1px solid var(--line);font-size:14px}
+.dpm{color:var(--mute);font-size:12px}
+#dsearch{border:1px solid var(--line);margin-top:8px;background:#fff}
+#dpl{flex:1;overflow:auto;padding:6px 12px}
+.dps{margin:10px 0 2px;font-weight:700;color:var(--acc)}
+.dpr{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;padding:7px 4px;border-bottom:1px solid #eef1f4}
+.dpr.cur{background:var(--acc2)}
+.dpn{flex:1 1 100%;text-align:start;border:0;background:none;font-weight:600;font-size:15px;padding:2px}
+.lgo{position:fixed;inset:0;z-index:80;background:linear-gradient(160deg,#e3f0fa,#f7fafc);display:flex;align-items:center;justify-content:center;padding:16px}
+.lgc{background:#fff;border-radius:18px;padding:26px 22px;max-width:380px;width:100%;text-align:center;box-shadow:0 10px 40px rgba(31,95,139,.2)}
+.lge{font-size:46px}
+.lgc h2{margin:4px 0}
+.lgsub{color:var(--mute);margin:0 0 10px}
+.lgc ul{text-align:start;padding-inline-start:22px;color:#33414f;font-size:14px;margin:8px 0 16px}
+.lgb{width:100%;padding:12px;font-size:16px;font-weight:700;background:var(--acc);color:#fff;border:0;border-radius:10px}
+.lgs{margin-top:10px;background:none;border:0;color:var(--acc);font-size:14px;text-decoration:underline}
+.lgn{color:var(--mute);font-size:12px;margin:12px 0 0}

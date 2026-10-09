@@ -1,4 +1,4 @@
-const VERSION='2026-10-18'; // shown next to the autosave note, to confirm an update arrived
+const VERSION='2026-10-19'; // shown next to the autosave note, to confirm an update arrived
 // App state (D), helpers, and autosave to the browser.
 const KEY='nbeditor.v1';
 let D=load()||{title:'',lang:'he',cells:[]};
@@ -8,5 +8,6 @@ const t=k=>T[D.lang][k];
 
 function load(){try{return JSON.parse(localStorage.getItem(KEY))}catch(e){return null}}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(D))}catch(e){}
+ if(typeof driveSaveSoon==='function')driveSaveSoon(); // sync to Google Drive (if connected)
  clearTimeout(window._pt);window._pt=setTimeout(()=>{try{updatePages()}catch(e){}},700); // refresh the page numbers shown on the cells
 }

@@ -2,7 +2,7 @@
 
 function renderFill(){
  $('bar').replaceChildren(
-  btn(t('pdf'),exportPDF,'p'),btn(t('exp'),exportJSON),btn(t('imp'),()=>$('file').click()),btn(t('enc'),exportEncrypted),
+  btn(t('pdf'),exportPDF,'p'),driveBtn(),btn(t('exp'),exportJSON),btn(t('imp'),()=>$('file').click()),btn(t('enc'),exportEncrypted),
   btn(t('toedit'),()=>{D.fill=false;save();render()},'on'),
   h('span',{className:'sp'}),btn(t('ui'),()=>{D.lang=D.lang==='he'?'en':'he';save();render()}),
   h('div',{id:'fnav'}));
