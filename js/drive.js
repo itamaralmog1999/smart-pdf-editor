@@ -6,9 +6,17 @@
 
 const GOOGLE_CLIENT_ID='448128086418-7lhu422d8dv433c7eahe9o7pmh2laj1p.apps.googleusercontent.com';
 const DRIVE_SCOPE='https://www.googleapis.com/auth/drive.file';
-
+ 
+// ACCESS CONTROL. false = anyone may use the app (they can also skip signing in).
+// true = nobody can use the app until they sign in with an email that appears (as a hash) in allowed.json.
+// Create allowed.json with licenses.html. Turn this on ONLY after your own email is in allowed.json, or you lock yourself out.
+const REQUIRE_LOGIN=false;
+const ALLOW_URL='allowed.json';
+const LOCK=REQUIRE_LOGIN&&!GOOGLE_CLIENT_ID.startsWith('PASTE');
+if(LOCK)document.body.classList.add('locked');
+ 
 const DT={
-he:{files:'קבצים',login:'התחברות עם Google',logout:'התנתק',loginTitle:'MyDocs',loginSub:'טפסים חכמים שנשמרים בדרייב שלך',
+he:{privacy:'מדיניות פרטיות',terms:'תנאי שימוש',denied:'המייל הזה לא מאושר לשימוש. פנו אליי לקבלת גישה',licexp:'הרישיון של החשבון הזה פג בתאריך',licnet:'אין חיבור לבדיקת הרשאה. התחברו לאינטרנט ונסו שוב',licuntil:'הרישיון בתוקף עד',other:'התחברות עם חשבון אחר',files:'קבצים',login:'התחברות עם Google',logout:'התנתק',loginTitle:'MyDocs',loginSub:'טפסים חכמים שנשמרים בדרייב שלך',
  b1:'עובד בטלפון ובמחשב, עם אותם קבצים',b2:'המסמכים נשמרים בתיקייה בדרייב האישי שלך',b3:'האתר ניגש רק לקבצים שהוא יצר בעצמו',
  loginSkip:'להמשיך בלי חיבור (שמירה במכשיר בלבד)',loginNote:'המסמכים נשמרים בגוגל דרייב שלך, והאחריות על המידע ועל הגישה אליו היא שלך.',
  expired:'ההתחברות פגה, אפשר להתחבר שוב',setup:'עדיין לא הוגדר Client ID בקובץ drive.js',connecting:'מתחבר...',err:'בעיית חיבור לדרייב. אפשר להתחבר מחדש',
@@ -16,7 +24,7 @@ he:{files:'קבצים',login:'התחברות עם Google',logout:'התנתק',lo
  tpls:'תבניות',work:'בעבודה',completed:'הושלמו',showdone:'הצג גם קבצים שהושלמו',donesh:'סיימתי',tpl:'תבנית',use:'צור מסמך',
  askname:'שם הקובץ (למשל תעודת הזהות של הלקוח):',askrename:'שם חדש לקובץ:',nofiles:'אין קבצים',search:'חיפוש קובץ',
  note:'הקבצים נשמרים בתיקייה בדרייב שלך:',doneNote:'ההורדה נעשתה והקובץ הוסתר מהרשימה (הוא נשאר בדרייב שלך)',cont:'המשך כ-'},
-en:{files:'Files',login:'Sign in with Google',logout:'Sign out',loginTitle:'MyDocs',loginSub:'Smart forms saved in your own Drive',
+en:{privacy:'Privacy Policy',terms:'Terms of Use',denied:'This email is not approved. Contact me for access',licexp:'The license of this account expired on',licnet:'No connection to check permission. Connect to the internet and try again',licuntil:'License valid until',other:'Sign in with another account',files:'Files',login:'Sign in with Google',logout:'Sign out',loginTitle:'MyDocs',loginSub:'Smart forms saved in your own Drive',
  b1:'Works on phone and computer, same files',b2:'Documents are saved in a folder in your personal Drive',b3:'The site only accesses files it created itself',
  loginSkip:'Continue without signing in (saved on this device only)',loginNote:'Documents are saved in your Google Drive. You are responsible for the data and access to it.',
  expired:'Sign-in expired, please sign in again',setup:'No Client ID set yet in drive.js',connecting:'Connecting...',err:'Drive connection problem. You can reconnect',
@@ -28,7 +36,7 @@ const dt=k=>(DT[D&&D.lang]||DT.he)[k]||k;
 const ls=(k,v)=>{try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){}};
 const dr={token:'',exp:0,email:'',folder:'',files:[],msg:'',mt:{},poll:+(ls('mydocs.poll')||60),showDone:false,q:'',saving:false,dirty:false,edit:0,needAuth:false};
 const D3='https://www.googleapis.com/drive/v3/',UP='https://www.googleapis.com/upload/drive/v3/';
-
+ 
 // ---------- Google sign-in (token only, no server) ----------
 let gsiP;
 const loadGsi=()=>gsiP||(gsiP=new Promise((res,rej)=>{
@@ -54,18 +62,47 @@ async function api(url,init={}){
 const jget=async u=>(await api(u)).json();
 const jsonH={'Content-Type':'application/json; charset=UTF-8'};
 const setMsg=k=>{dr.msg=k;const m=document.querySelector('.dpm');if(m)m.textContent=k?dt(k):''};
-
+ 
+async function sha(s){
+ const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s.trim().toLowerCase()));
+ return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');
+}
+// Is this email approved? allowed.json holds SHA-256 hashes of approved emails (plus an optional "until" date = end of license)
+async function checkAllowed(email){
+ if(!REQUIRE_LOGIN)return {ok:true};
+ const h=await sha(email);
+ try{
+  const j=await (await fetch(ALLOW_URL+'?'+Date.now(),{cache:'no-store'})).json();
+  const u=(j.users||[]).find(x=>x.h===h);
+  if(!u)return {ok:false,why:'no'};
+  if(u.until&&new Date(u.until+'T23:59:59')<new Date())return {ok:false,why:'lic',until:u.until};
+  ls('mydocs.ok',JSON.stringify({h,t:Date.now(),until:u.until||''}));
+  return {ok:true,until:u.until||''};
+ }catch(e){            // offline: accept a successful check made in the last 14 days
+  try{const o=JSON.parse(ls('mydocs.ok'));if(o.h===h&&Date.now()-o.t<14*864e5)return {ok:true,until:o.until||''}}catch(x){}
+  return {ok:false,why:'net'};
+ }
+}
+async function deny(a){
+ try{if(dr.token)google.accounts.oauth2.revoke(dr.token,()=>{})}catch(e){}
+ const em=dr.email;Object.assign(dr,{token:'',email:'',folder:'',files:[],exp:0,until:'',denied:true});ls('mydocs.email','');
+ setMsg('');renderPanel();showLogin(a.why,a.until||em);
+}
 async function driveConnect(interactive){
+ dr.denied=false;
  try{
   setMsg('connecting');
   await getToken(interactive);
   dr.email=(await jget(D3+'about?fields=user(emailAddress)')).user.emailAddress;
+  const a=await checkAllowed(dr.email);
+  if(!a.ok){await deny(a);return false}
+  dr.until=a.until||'';
   ls('mydocs.email',dr.email);
   dr.folder=await ensureFolder();
   await refreshList();
   dr.needAuth=false;setMsg('');startPoll();
   if(dr.dirty)driveFlush();
-  closeLogin();renderPanel();rerenderBar();
+  closeLogin();document.body.classList.remove('locked');renderPanel();rerenderBar();
   return true;
  }catch(e){dr.needAuth=true;setMsg('err');renderPanel();return false}
 }
@@ -76,7 +113,7 @@ async function ensureFolder(){
  if(r.files.length)return r.files[0].id;      // already created (e.g. from the computer): use it
  return (await (await api(D3+'files?fields=id',{method:'POST',headers:jsonH,body:JSON.stringify({name,mimeType:'application/vnd.google-apps.folder'})})).json()).id;
 }
-
+ 
 // ---------- files in the folder ----------
 async function refreshList(){
  const q=encodeURIComponent("'"+dr.folder+"' in parents and trashed=false");
@@ -96,7 +133,7 @@ async function updateFile(id,obj){
 }
 const readFile=async id=>(await api(D3+'files/'+id+'?alt=media')).json();
 const patchMeta=(id,body)=>api(D3+'files/'+id,{method:'PATCH',headers:jsonH,body:JSON.stringify(body)});
-
+ 
 // A copy of a template with everything that people fill in removed (answers, choices, signatures, lines, table cells...)
 function blankOf(src){
  const o=JSON.parse(JSON.stringify(src));
@@ -117,7 +154,7 @@ function useDoc(obj,id,name){
  render();window.scrollTo(0,0);
 }
 const askName=(msg,def)=>{const n=prompt(msg,def||'');return n&&n.trim().replace(/[\\/:*?"<>|]/g,'-')};
-
+ 
 async function openFile(f){
  try{
   await driveFlush();
@@ -158,8 +195,9 @@ function driveLogout(){
  try{if(dr.token)google.accounts.oauth2.revoke(dr.token,()=>{})}catch(e){}
  clearInterval(dr.timer);Object.assign(dr,{token:'',email:'',folder:'',files:[],exp:0});ls('mydocs.email','');
  renderPanel();rerenderBar();
+ if(LOCK){document.body.classList.add('locked');showLogin()}
 }
-
+ 
 // ---------- saving + refreshing ----------
 function driveSaveSoon(){
  if(!D||!D.fid||!dr.email)return;
@@ -185,7 +223,7 @@ async function driveRefresh(){
  }catch(e){dr.needAuth=true;setMsg('err');rerenderBar()}
 }
 function startPoll(){clearInterval(dr.timer);if(dr.poll>0)dr.timer=setInterval(driveRefresh,dr.poll*1000)}
-
+ 
 // ---------- screens ----------
 const rerenderBar=()=>{try{render()}catch(e){}};
 function driveBtn(){
@@ -207,7 +245,7 @@ function renderPanel(){
  search.addEventListener('input',()=>{dr.q=search.value;renderList()});
  p.replaceChildren(
   h('div',{className:'dph'},h('b',{},'📁 '+dt('files')),h('span',{className:'sp'}),btn('✕',closePanel)),
-  on?h('div',{className:'dpa'},h('div',{},'✓ '+dr.email),
+  on?h('div',{className:'dpa'},h('div',{},'✓ '+dr.email),dr.until?h('div',{className:'dpm'},dt('licuntil')+' '+dr.until):'',
     h('div',{className:'tb'},btn('🔄',driveRefresh),h('label',{className:'c'},dt('every')+':',pollSel()),btn(dt('logout'),driveLogout,'x')),
     h('div',{className:'dpm'},dr.msg?dt(dr.msg):''))
    :h('div',{className:'dpa'},btn(dt('login'),()=>driveConnect(true),'p'),h('div',{className:'dpm'},dr.msg?dt(dr.msg):'')),
@@ -235,21 +273,24 @@ function renderList(){
   ...(dr.showDone?sec(dt('completed'),docs.filter(f=>f.kind!=='template'&&f.done),false):[]));
 }
 function closeLogin(){const l=$('lg');if(l)l.remove()}
-function showLogin(expired){
+function showLogin(kind,info){
  closeLogin();
  const em=ls('mydocs.email'),bad=GOOGLE_CLIENT_ID.startsWith('PASTE');
- const go=h('button',{type:'button',className:'lgb'},expired&&em?dt('cont')+em:dt('login'));
+ const sub=({expired:dt('expired'),connecting:dt('connecting'),no:dt('denied')+(info?' ('+info+')':''),lic:dt('licexp')+' '+(info||''),net:dt('licnet')})[kind]||dt('loginSub');
+ const go=h('button',{type:'button',className:'lgb'},kind==='expired'&&em?dt('cont')+em:(kind==='no'||kind==='lic')?dt('other'):dt('login'));
  go.addEventListener('click',()=>{if(bad){alert(dt('setup'));return}driveConnect(true)});
  const skip=h('button',{type:'button',className:'lgs'},dt('loginSkip'));
  skip.addEventListener('click',()=>{ls('mydocs.skip','1');closeLogin()});
  document.body.append(h('div',{id:'lg',className:'lgo',dir:document.documentElement.dir},h('div',{className:'lgc'},
-  h('div',{className:'lge'},'📄'),h('h2',{},dt('loginTitle')),h('p',{className:'lgsub'},expired?dt('expired'):dt('loginSub')),
+  h('div',{className:'lge'},'📄'),h('h2',{},dt('loginTitle')),h('p',{className:'lgsub'+(['no','lic','net'].includes(kind)?' lgbad':'')},sub),
   h('ul',{},h('li',{},dt('b1')),h('li',{},dt('b2')),h('li',{},dt('b3'))),
-  go,skip,bad?h('p',{className:'lgn'},'⚙ '+dt('setup')):'',h('p',{className:'lgn'},dt('loginNote')))));
+  go,LOCK?'':skip,bad?h('p',{className:'lgn'},'⚙ '+dt('setup')):'',h('p',{className:'lgn'},dt('loginNote')),
+  h('p',{className:'lgn'},h('a',{href:'privacy.html',target:'_blank'},dt('privacy')),' · ',h('a',{href:'terms.html',target:'_blank'},dt('terms'))))));
 }
 function driveInit(){
  document.addEventListener('visibilitychange',()=>{if(document.hidden)driveFlush();else driveRefresh()});
  const em=ls('mydocs.email'),bad=GOOGLE_CLIENT_ID.startsWith('PASTE');
- if(em&&!bad)driveConnect(false).then(ok=>{if(!ok)showLogin(true)});   // silent reconnect with the remembered account
- else if(!ls('mydocs.skip'))showLogin();
+ if(em&&!bad){if(LOCK)showLogin('connecting');driveConnect(false).then(ok=>{if(!ok&&!dr.denied)showLogin('expired')})}   // silent reconnect with the remembered account
+ else if(LOCK||!ls('mydocs.skip'))showLogin();
 }
+ 

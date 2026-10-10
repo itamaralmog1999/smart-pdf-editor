@@ -95,8 +95,7 @@ function fillCell(c,i){
  else if(c.type==='list'){
   w.append(title());
   c.items.forEach((it,k)=>{
-   w.append(h('div',{className:'li'},h('span',{className:'mk'},marker(c,k)),field(it,'t',t('ph'),'',true)));
-   if(c.sig)w.append(h('div',{className:'sgwrap'},sigBox(it,'sig',c.sigLabel)));
+   w.append(h('div',{className:'li'},h('span',{className:'mk'},marker(c,k)),field(it,'t',t('ph'),'',true),c.sig?sigBox(it,'sig',c.sigLabel):''));
   });
  }
  else if(c.type==='check'){

@@ -191,9 +191,8 @@ function listUI(c){
  w.append(field(c,'text',t('lt'),'ut',false));
  c.items.forEach((it,i)=>{
   w.append(h('div',{className:'li'},
-   h('span',{className:'mk'},marker(c,i)),field(it,'t',t('ph'),'',true),
+   h('span',{className:'mk'},marker(c,i)),field(it,'t',t('ph'),'',true),c.sig?sigBox(it,'sig',c.sigLabel):'',
    c.items.length>1?btn('✕',()=>{c.items.splice(i,1);save();render()},'x'):''));
-  if(c.sig)w.append(h('div',{className:'sgwrap'},sigBox(it,'sig',c.sigLabel)));
  });
  const sel=h('select',{on:{change:e=>{c.style=e.target.value;save();render()}}},
   [['num','snum'],['dot','sdot'],['heb','sheb']].map(([v,k])=>h('option',{value:v,selected:c.style===v},t(k))));
