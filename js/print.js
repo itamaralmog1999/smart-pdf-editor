@@ -94,6 +94,7 @@ function fitRows(P){
  P.querySelectorAll('.pf').forEach(r=>{for(const k of ['tight','tighter']){if(!wrapped(r))break;r.classList.add(k)}});
  // one real line under every line of text (also when the text wraps); positions are measured at the final page width (A4)
  P.querySelectorAll('.rl,.pli>span,.bl,.pdl,.pfld>span:not(.pco),.capcol:not(.sg)>span').forEach(el=>{
+  el.style.background='none';el.style.border='0';      // only the real line elements below draw lines
   const lh=parseFloat(getComputedStyle(el).lineHeight)||29.33,n=Math.max(1,Math.round(el.offsetHeight/lh));
   for(let k=1;k<=n;k++){const r=document.createElement('i');r.className='rr';r.style.top='calc(var(--lh) * '+k+' - 1pt)';el.append(r)}
  });

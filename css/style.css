@@ -213,3 +213,7 @@ textarea.line:hover,textarea.line:focus,.li textarea:hover,.li textarea:focus{bo
 .li{flex-wrap:wrap}
 .li textarea{flex:1 1 220px}
 .li .sgslot{flex:0 0 160px;width:160px}
+
+/* css version: must equal VERSION in js/state.js, otherwise the page shows a warning */
+:root{--ver:"2026-10-23"}
+.verwarn{background:#b3362b;color:#fff;padding:8px 12px;text-align:center;font-size:14px}
