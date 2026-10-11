@@ -32,7 +32,7 @@ label.c{display:flex;gap:5px;align-items:center;font-size:14px}
 label.c input{width:auto}
 #print{display:none}
 /* ---- PDF layout (#print is only displayed while printing) ---- */
-#print{--lh:22pt}
+#print{--lh:24pt}
 #print h1{font-size:22pt;margin:0 0 12pt}#print h2{font-size:15pt;margin:14pt 0 4pt}
 #print p{margin:4pt 0;white-space:pre-wrap}#print .q{font-weight:700}#print .ul{text-decoration:underline}
 #print .kw{break-inside:avoid;page-break-inside:avoid;margin:7pt 0}
@@ -77,7 +77,7 @@ label.c input{width:auto}
 #print table{margin:8pt 0;page-break-inside:avoid}#print th,#print td{padding:4pt 6pt;min-width:0}
 #print th{background:#e8f1f8!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 @media print{
- @page{margin:16mm 14mm}
+ @page{size:A4;margin:16mm 14mm}
  body{background:#fff}#app{display:none}#print{display:block;padding:0;font-size:12pt}
 }
 
@@ -199,16 +199,17 @@ body.locked #app,body.locked .dp{display:none!important}
 .lgbad{color:#b3362b;font-weight:600}
 
 /* ---- ruled text: every wrapped line gets its own line; fields shrink to their content ---- */
-#print .rl,#print .pli>span,#print .bl,#print .pdl,#print .pfld>span:not(.pco),#print .capcol:not(.sg)>span{display:block;line-height:var(--lh);min-height:var(--lh);padding:0 4pt;border-bottom:0;white-space:pre-wrap;overflow-wrap:anywhere;background:repeating-linear-gradient(to bottom,transparent 0,transparent calc(var(--lh) - 1pt),#000 calc(var(--lh) - 1pt),#000 var(--lh));-webkit-print-color-adjust:exact;print-color-adjust:exact}
+#print .rl,#print .pli>span,#print .bl,#print .pdl,#print .pfld>span:not(.pco),#print .capcol:not(.sg)>span{display:block;line-height:var(--lh);min-height:var(--lh);padding:0 4pt;border-bottom:0;white-space:pre-wrap;overflow-wrap:anywhere;position:relative}
+#print .rr{position:absolute;left:0;right:0;height:1pt;background:#000;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 #print .pfld>span.ctr{text-align:center}
 #print .pli>b{line-height:var(--lh)}
 #print .pli>span{flex:0 1 auto;min-width:90pt}
 #print .pli.hs>span{max-width:calc(100% - 175pt)}
-#print .pli.hs>b,#print .pli.hs>span{margin-bottom:11.5pt}
+#print .pli.hs>b,#print .pli.hs>span{margin-bottom:14.5pt}
 #print .pli>.psg{flex:0 0 130pt;width:130pt}
 :root{--rule:repeating-linear-gradient(to bottom,transparent 0,transparent 27px,#8a94a3 27px,#8a94a3 28px)}
 textarea.line,.li textarea{line-height:28px;padding:0 4px;border:0;border-radius:0;background-image:var(--rule);background-attachment:local}
 textarea.line:hover,textarea.line:focus,.li textarea:hover,.li textarea:focus{border:0;background-image:var(--rule);background-color:#fff}
 .li{flex-wrap:wrap}
-.li textarea{flex:1 1 140px}
+.li textarea{flex:1 1 220px}
 .li .sgslot{flex:0 0 160px;width:160px}

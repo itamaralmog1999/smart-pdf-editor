@@ -1,6 +1,9 @@
 // PDF export (via browser print). Edit print look in css/style.css (@media print).
 // Each field sizes itself to its content; if the row is too full the next field moves down (no overlap)
-const pf=f=>{const e=pf0(f);e.style.flexGrow=({n:0.6,w:2.5}[f.w]||1);const v=e.querySelector(':scope>span:not(.pco):not(.pdl),:scope>.capcol');if(v)v.style.minWidth=({n:'36pt',w:'160pt'}[f.w]||'80pt');return e};
+// a field with something written in it is only as wide as its content; an empty one grows to fill the row
+const filled=f=>f.type==='choice'?!(f.detail&&!f.dtext):!!String(f.value||'').trim();
+const pf=f=>{const e=pf0(f);e.style.flexGrow=filled(f)?0:({n:0.6,w:2.5}[f.w]||1);const v=e.querySelector(':scope>span:not(.pco):not(.pdl),:scope>.capcol');if(v)v.style.minWidth=({n:'36pt',w:'160pt'}[f.w]||'80pt');return e};
+const psig2=(src,cap)=>h('div',{className:'psg'},h('div',{className:'psgl'},src?h('img',{src}):''),h('i',{className:'cp'},cap||t('sig')));
 const psig=(src,cap)=>h('div',{className:'psgw'},h('div',{className:'psg'},h('div',{className:'psgl'},src?h('img',{src}):''),h('i',{className:'cp'},cap||t('sig'))));
 const pf0=f=>f.type==='sig'
  ?h('div',{className:'pfld cap'},f.prefix?h('b',{className:'pre'},f.prefix):'',h('div',{className:'capcol sg'},h('span',{},f.value?h('img',{src:f.value}):''),h('i',{className:'cp'},f.label||'')))
@@ -34,7 +37,11 @@ function buildPrint(plan){
   }
   else if(c.type==='list'){
    if(c.text)out.append(h('p',{dir:d,className:'q'+u},c.text));
-   c.items.forEach((it,i)=>{out.append(h('div',{className:'pli',dir:d==='auto'?P.dir:d},h('b',{},marker(c,i)),h('span',{},it.t||'')));if(c.sig)out.append(psig(it.sig,c.sigLabel))});
+   c.items.forEach((it,i)=>{
+     const tx=h('span',{className:'rl'},it.t||'');
+     if(!c.sig||!(it.t||'').trim())tx.style.flexGrow=1;      // the signature follows the text on the same line; a line without text spans the row
+     out.append(h('div',{className:'pli'+(c.sig?' hs':''),dir:d==='auto'?P.dir:d},h('b',{},marker(c,i)),tx,c.sig?psig2(it.sig,c.sigLabel):''));
+    });
   }
   else if(c.type==='choice'){
    out.append(h('div',{className:'pch',dir:d==='auto'?P.dir:d},
@@ -85,6 +92,11 @@ function fitRows(P){
  P.style.cssText='display:block;position:absolute;left:-9999px;width:182mm;font-size:12pt';
  const wrapped=r=>{const k=[...r.children];return k.some(x=>Math.abs(x.getBoundingClientRect().top-k[0].getBoundingClientRect().top)>2)};
  P.querySelectorAll('.pf').forEach(r=>{for(const k of ['tight','tighter']){if(!wrapped(r))break;r.classList.add(k)}});
+ // one real line under every line of text (also when the text wraps); positions are measured at the final page width (A4)
+ P.querySelectorAll('.rl,.pli>span,.bl,.pdl,.pfld>span:not(.pco),.capcol:not(.sg)>span').forEach(el=>{
+  const lh=parseFloat(getComputedStyle(el).lineHeight)||29.33,n=Math.max(1,Math.round(el.offsetHeight/lh));
+  for(let k=1;k<=n;k++){const r=document.createElement('i');r.className='rr';r.style.top='calc(var(--lh) * '+k+' - 1pt)';el.append(r)}
+ });
  P.removeAttribute('style');
 }
 
