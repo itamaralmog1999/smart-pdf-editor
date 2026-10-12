@@ -1,13 +1,17 @@
 // FILL MODE: the finished form, only things to fill in (fields, choices, lines). No editing controls.
 
+let FOLD=new Set();   // headings whose section is collapsed right now (not saved)
 function renderFill(){
+ FOLD=new Set(D.cells.map((c,i)=>c.type==='heading'&&c.fold&&c.closed?i:-1).filter(i=>i>=0));
  $('bar').replaceChildren(
   btn(t('pdf'),exportPDF,'p'),driveBtn(),btn(t('exp'),exportJSON),btn(t('imp'),()=>$('file').click()),btn(t('enc'),exportEncrypted),
   btn(t('toedit'),()=>{D.fill=false;save();render()},'on'),
+  ...foldBtns(),
   h('span',{className:'sp'}),btn(t('ui'),()=>{D.lang=D.lang==='he'?'en':'he';save();render()}),
   h('div',{id:'fnav'}));
  $('add').replaceChildren();
  $('cells').replaceChildren(...D.cells.map(fillCell));
+ applyFolds();
  setTimeout(()=>{try{markFillPages(measureLayout(buildPrint()))}catch(e){}},0);
 }
 
@@ -81,7 +85,12 @@ function fillCell(c,i){
  c._dir=c.dir==='auto'?'auto':c.dir;
  const dir=c.dir,u=c.u?' fu':'',w=h('div',{className:'fc','data-i':i});
  const title=()=>c.text?h('div',{className:'fq'+u,dir},c.text):'';
- if(c.type==='heading'){w.className='fc bare';w.append(h('div',{className:'fh'+u,dir},c.text||''))}
+ if(c.type==='heading'){
+  w.className='fc bare';
+  const hd=h('div',{className:'fh'+u,dir});
+  if(c.fold){const fb=h('button',{type:'button',className:'fold',title:t('foldt')});fb.addEventListener('click',()=>toggleFold(i));hd.append(fb)}
+  hd.append(c.text||'');w.append(hd);
+ }
  else if(c.type==='text'){w.className='fc bare';w.append(h('p',{className:'ft'+u,dir},c.text||''))}
  else if(c.type==='question')w.append(title(),field(c,'answer',t('aph'),'ans',true),fillLines(c));
  else if(c.type==='table')w.append(fillTable(c));
@@ -131,3 +140,22 @@ function setActivePage(){
  document.querySelectorAll('.fnb').forEach(b=>b.classList.toggle('on',b.dataset.p===cur));
 }
 window.addEventListener('scroll',()=>{if(D.fill)requestAnimationFrame(setActivePage)},{passive:true});
+
+// Collapsible sections: a heading with the "collapsible" option hides the cells under it until the next heading
+function toggleFold(i){FOLD.has(i)?FOLD.delete(i):FOLD.add(i);applyFolds()}
+function applyFolds(){
+ let hide=false;
+ D.cells.forEach((c,i)=>{
+  const el=document.querySelector('.fc[data-i="'+i+'"]');if(!el)return;
+  if(c.type==='heading'){
+   hide=!!(c.fold&&FOLD.has(i));el.classList.remove('fhide');
+   const b=el.querySelector('.fold');if(b)b.textContent=FOLD.has(i)?'▸':'▾';
+   return;
+  }
+  el.classList.toggle('fhide',hide);
+ });
+}
+function foldBtns(){
+ if(!D.cells.some(c=>c.type==='heading'&&c.fold))return [];
+ return [btn(t('foldall'),()=>{D.cells.forEach((c,i)=>{if(c.type==='heading'&&c.fold)FOLD.add(i)});applyFolds()}),btn(t('unfoldall'),()=>{FOLD.clear();applyFolds()})];
+}

@@ -215,5 +215,15 @@ textarea.line:hover,textarea.line:focus,.li textarea:hover,.li textarea:focus{bo
 .li .sgslot{flex:0 0 160px;width:160px}
 
 /* css version: must equal VERSION in js/state.js, otherwise the page shows a warning */
-:root{--ver:"2026-10-23"}
+:root{--ver:"2026-10-25"}
 .verwarn{background:#b3362b;color:#fff;padding:8px 12px;text-align:center;font-size:14px}
+
+/* ---- footer links (privacy / terms) ---- */
+.foot{text-align:center;font-size:13px;color:var(--mute);margin:26px 0 8px}
+.foot a{color:var(--acc)}
+.dpm a{color:var(--acc)}
+
+/* ---- collapsible sections in fill mode ---- */
+.fh{display:flex;align-items:center;gap:4px}
+.fh .fold{border:0;background:none;font-size:20px;line-height:1;padding:0 6px;cursor:pointer;color:var(--acc)}
+.fhide{display:none!important}

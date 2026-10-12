@@ -53,7 +53,7 @@ function cellUI(c,i){
   h('span',{className:'pgno','data-i':i}),h('span',{className:'sp'}),pgb,pb,ub,sel,btn('▲',()=>move(i,-1)),btn('▼',()=>move(i,1)),btn('✕',()=>{D.cells.splice(i,1);save();render()},'x'));
  tools.querySelector('button:last-child').title=t('del');
  const body=h('div',{className:'body'});
- if(c.type==='heading')body.append(field(c,'text',t('title'),'h ut',false));
+ if(c.type==='heading')body.append(field(c,'text',t('title'),'h ut',false),foldOpts(c));
  else if(c.type==='text')body.append(field(c,'text',t('ph'),'ut',true));
  else if(c.type==='question')body.append(field(c,'text',t('qph'),'ut',true),field(c,'answer',t('aph'),'ans',true),linesCtl(c));
  else if(c.type==='fields')body.append(fieldsUI(c),linesCtl(c));
@@ -226,3 +226,11 @@ function checkUI(c){
 
 // Shown on a cell that starts a new page
 function pgOpt(c){return h('div',{className:'tb'},h('b',{},'📄 '+t('pb')))}
+
+// Heading option: the section under it (until the next heading) can be collapsed in fill mode
+function foldOpts(c){
+ const a=h('input',{type:'checkbox',checked:!!c.fold,on:{change:e=>{c.fold=e.target.checked;if(!c.fold)c.closed=false;save();render()}}});
+ const row=h('div',{className:'tb'},h('label',{className:'c'},a,t('fold')));
+ if(c.fold){const b=h('input',{type:'checkbox',checked:!!c.closed,on:{change:e=>{c.closed=e.target.checked;save()}}});row.append(h('label',{className:'c'},b,t('closed')))}
+ return row;
+}
