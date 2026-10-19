@@ -215,7 +215,7 @@ textarea.line:hover,textarea.line:focus,.li textarea:hover,.li textarea:focus{bo
 .li .sgslot{flex:0 0 160px;width:160px}
 
 /* css version: must equal VERSION in js/state.js, otherwise the page shows a warning */
-:root{--ver:"2026-10-25"}
+:root{--ver:"2026-10-27"}
 .verwarn{background:#b3362b;color:#fff;padding:8px 12px;text-align:center;font-size:14px}
 
 /* ---- footer links (privacy / terms) ---- */

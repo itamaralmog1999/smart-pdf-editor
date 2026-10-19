@@ -1,32 +1,29 @@
 // GOOGLE DRIVE: login, a "MYDOCS-<email>" folder in the user's own Drive, a file bar, templates, "done", and periodic refresh.
 // The app only sees files it created itself (scope drive.file). Nothing is stored on any server of yours.
 //
-// ONE-TIME SETUP (by you, the developer): create an OAuth Client ID of type "Web application" in Google Cloud Console,
-// add your site address (e.g. https://itamaralmog1999.github.io) under "Authorized JavaScript origins", and paste the Client ID here:
-const GOOGLE_CLIENT_ID='PASTE-YOUR-CLIENT-ID.apps.googleusercontent.com';
+// Settings (Client ID, REQUIRE_LOGIN, APPROVAL_URL) are in js/config.js, so this file can be replaced freely.
+const CFG=window.MYDOCS_CONFIG||{};
+const GOOGLE_CLIENT_ID=CFG.GOOGLE_CLIENT_ID||'PASTE-YOUR-CLIENT-ID.apps.googleusercontent.com';
 const DRIVE_SCOPE='https://www.googleapis.com/auth/drive.file';
-
-// ACCESS CONTROL. false = anyone may use the app (they can also skip signing in).
-// true = nobody can use the app until they sign in with an email that appears (as a hash) in allowed.json.
-// Create allowed.json with licenses.html. Turn this on ONLY after your own email is in allowed.json, or you lock yourself out.
-const REQUIRE_LOGIN=false;
+const REQUIRE_LOGIN=!!CFG.REQUIRE_LOGIN;      // false = anyone may use the app; true = only approved people
+const APPROVAL_URL=CFG.APPROVAL_URL||'';      // Apps Script approval service; empty = use the allowed.json list
 const ALLOW_URL='allowed.json';
 const LOCK=REQUIRE_LOGIN&&!GOOGLE_CLIENT_ID.startsWith('PASTE');
 if(LOCK)document.body.classList.add('locked');
 
 const DT={
-he:{privacy:'מדיניות פרטיות',terms:'תנאי שימוש',denied:'המייל הזה לא מאושר לשימוש. פנו אליי לקבלת גישה',licexp:'הרישיון של החשבון הזה פג בתאריך',licnet:'אין חיבור לבדיקת הרשאה. התחברו לאינטרנט ונסו שוב',licuntil:'הרישיון בתוקף עד',other:'התחברות עם חשבון אחר',files:'קבצים',login:'התחברות עם Google',logout:'התנתק',loginTitle:'MyDocs',loginSub:'טפסים חכמים שנשמרים בדרייב שלך',
+he:{pending:'הבקשה שלך התקבלה וממתינה לאישור. אחרי האישור אפשר להתחבר שוב',privacy:'מדיניות פרטיות',terms:'תנאי שימוש',denied:'המייל הזה לא מאושר לשימוש. פנו אליי לקבלת גישה',licexp:'הרישיון של החשבון הזה פג בתאריך',licnet:'אין חיבור לבדיקת הרשאה. התחברו לאינטרנט ונסו שוב',licuntil:'הרישיון בתוקף עד',other:'התחברות עם חשבון אחר',files:'קבצים',login:'התחברות עם Google',logout:'התנתק',loginTitle:'MyDocs',loginSub:'טפסים חכמים שנשמרים בדרייב שלך',
  b1:'עובד בטלפון ובמחשב, עם אותם קבצים',b2:'המסמכים נשמרים בתיקייה בדרייב האישי שלך',b3:'האתר ניגש רק לקבצים שהוא יצר בעצמו',
  loginSkip:'להמשיך בלי חיבור (שמירה במכשיר בלבד)',loginNote:'המסמכים נשמרים בגוגל דרייב שלך, והאחריות על המידע ועל הגישה אליו היא שלך.',
- expired:'ההתחברות פגה, אפשר להתחבר שוב',setup:'עדיין לא הוגדר Client ID בקובץ drive.js',connecting:'מתחבר...',err:'בעיית חיבור לדרייב. אפשר להתחבר מחדש',
+ expired:'ההתחברות פגה, אפשר להתחבר שוב',setup:'עדיין לא הוגדר Client ID בקובץ js/config.js',connecting:'מתחבר...',err:'בעיית חיבור לדרייב. אפשר להתחבר מחדש',
  every:'רענון כל',off:'כבוי',m1:'דקה',m2:'2 דקות',m5:'5 דקות',newdoc:'מסמך חדש',savehere:'שמור את המסמך הנוכחי בדרייב',
  tpls:'תבניות',work:'בעבודה',completed:'הושלמו',showdone:'הצג גם קבצים שהושלמו',donesh:'סיימתי',tpl:'תבנית',use:'צור מסמך',
  askname:'שם הקובץ (למשל תעודת הזהות של הלקוח):',askrename:'שם חדש לקובץ:',nofiles:'אין קבצים',search:'חיפוש קובץ',
  note:'הקבצים נשמרים בתיקייה בדרייב שלך:',doneNote:'ההורדה נעשתה והקובץ הוסתר מהרשימה (הוא נשאר בדרייב שלך)',cont:'המשך כ-'},
-en:{privacy:'Privacy Policy',terms:'Terms of Use',denied:'This email is not approved. Contact me for access',licexp:'The license of this account expired on',licnet:'No connection to check permission. Connect to the internet and try again',licuntil:'License valid until',other:'Sign in with another account',files:'Files',login:'Sign in with Google',logout:'Sign out',loginTitle:'MyDocs',loginSub:'Smart forms saved in your own Drive',
+en:{pending:'Your request was received and is waiting for approval. After approval you can sign in again',privacy:'Privacy Policy',terms:'Terms of Use',denied:'This email is not approved. Contact me for access',licexp:'The license of this account expired on',licnet:'No connection to check permission. Connect to the internet and try again',licuntil:'License valid until',other:'Sign in with another account',files:'Files',login:'Sign in with Google',logout:'Sign out',loginTitle:'MyDocs',loginSub:'Smart forms saved in your own Drive',
  b1:'Works on phone and computer, same files',b2:'Documents are saved in a folder in your personal Drive',b3:'The site only accesses files it created itself',
  loginSkip:'Continue without signing in (saved on this device only)',loginNote:'Documents are saved in your Google Drive. You are responsible for the data and access to it.',
- expired:'Sign-in expired, please sign in again',setup:'No Client ID set yet in drive.js',connecting:'Connecting...',err:'Drive connection problem. You can reconnect',
+ expired:'Sign-in expired, please sign in again',setup:'No Client ID set yet in js/config.js',connecting:'Connecting...',err:'Drive connection problem. You can reconnect',
  every:'Refresh every',off:'Off',m1:'1 min',m2:'2 min',m5:'5 min',newdoc:'New document',savehere:'Save the current document to Drive',
  tpls:'Templates',work:'In progress',completed:'Completed',showdone:'Also show completed files',donesh:'Done',tpl:'Template',use:'Create document',
  askname:'File name (e.g. the client ID number):',askrename:'New file name:',nofiles:'No files',search:'Search files',
@@ -71,13 +68,24 @@ async function checkAllowed(email){
  if(!REQUIRE_LOGIN)return {ok:true};
  const h=await sha(email);
  try{
-  const j=await (await fetch(ALLOW_URL+'?'+Date.now(),{cache:'no-store'})).json();
-  const u=(j.users||[]).find(x=>x.h===h);
-  if(!u)return {ok:false,why:'no'};
-  if(u.until&&new Date(u.until+'T23:59:59')<new Date())return {ok:false,why:'lic',until:u.until};
-  ls('mydocs.ok',JSON.stringify({h,t:Date.now(),until:u.until||''}));
-  return {ok:true,until:u.until||''};
- }catch(e){            // offline: accept a successful check made in the last 14 days
+  let r;
+  if(APPROVAL_URL){      // your Apps Script service: records the attempt, notifies you, answers approved / pending / expired / blocked
+   const j=await (await fetch(APPROVAL_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'check',token:dr.token})})).json();
+   if(j.status==='approved')r={ok:true,until:j.until||''};
+   else if(j.status==='pending')r={ok:false,why:'pending'};
+   else if(j.status==='expired')r={ok:false,why:'lic',until:j.until||''};
+   else if(j.status==='blocked')r={ok:false,why:'no'};
+   else throw new Error('approval');
+  }else{                 // fallback: the allowed.json list
+   const j=await (await fetch(ALLOW_URL+'?'+Date.now(),{cache:'no-store'})).json();
+   const u=(j.users||[]).find(x=>x.h===h);
+   if(!u)r={ok:false,why:'no'};
+   else if(u.until&&new Date(u.until+'T23:59:59')<new Date())r={ok:false,why:'lic',until:u.until};
+   else r={ok:true,until:u.until||''};
+  }
+  if(r.ok)ls('mydocs.ok',JSON.stringify({h,t:Date.now(),until:r.until||''}));
+  return r;
+ }catch(e){            // offline or service unavailable: accept a successful check made in the last 14 days
   try{const o=JSON.parse(ls('mydocs.ok'));if(o.h===h&&Date.now()-o.t<14*864e5)return {ok:true,until:o.until||''}}catch(x){}
   return {ok:false,why:'net'};
  }
@@ -275,13 +283,13 @@ function closeLogin(){const l=$('lg');if(l)l.remove()}
 function showLogin(kind,info){
  closeLogin();
  const em=ls('mydocs.email'),bad=GOOGLE_CLIENT_ID.startsWith('PASTE');
- const sub=({expired:dt('expired'),connecting:dt('connecting'),no:dt('denied')+(info?' ('+info+')':''),lic:dt('licexp')+' '+(info||''),net:dt('licnet')})[kind]||dt('loginSub');
+ const sub=({pending:dt('pending'),expired:dt('expired'),connecting:dt('connecting'),no:dt('denied')+(info?' ('+info+')':''),lic:dt('licexp')+' '+(info||''),net:dt('licnet')})[kind]||dt('loginSub');
  const go=h('button',{type:'button',className:'lgb'},kind==='expired'&&em?dt('cont')+em:(kind==='no'||kind==='lic')?dt('other'):dt('login'));
  go.addEventListener('click',()=>{if(bad){alert(dt('setup'));return}driveConnect(true)});
  const skip=h('button',{type:'button',className:'lgs'},dt('loginSkip'));
  skip.addEventListener('click',()=>{ls('mydocs.skip','1');closeLogin()});
  document.body.append(h('div',{id:'lg',className:'lgo',dir:document.documentElement.dir},h('div',{className:'lgc'},
-  h('div',{className:'lge'},'📄'),h('h2',{},dt('loginTitle')),h('p',{className:'lgsub'+(['no','lic','net'].includes(kind)?' lgbad':'')},sub),
+  h('div',{className:'lge'},'📄'),h('h2',{},dt('loginTitle')),h('p',{className:'lgsub'+(['no','lic','net','pending'].includes(kind)?' lgbad':'')},sub),
   h('ul',{},h('li',{},dt('b1')),h('li',{},dt('b2')),h('li',{},dt('b3'))),
   go,LOCK?'':skip,bad?h('p',{className:'lgn'},'⚙ '+dt('setup')):'',h('p',{className:'lgn'},dt('loginNote')),
   h('p',{className:'lgn'},h('a',{href:'privacy.html',target:'_blank'},dt('privacy')),' · ',h('a',{href:'terms.html',target:'_blank'},dt('terms'))))));
